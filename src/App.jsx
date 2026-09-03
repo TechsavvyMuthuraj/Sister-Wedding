@@ -11,6 +11,7 @@ import FlutterNavBar from './components/FlutterNavBar';
 
 import WeddingMusicPlayer from './components/WeddingMusicPlayer';
 import Lightfall from './components/Lightfall';
+import DeveloperSupport from './components/DeveloperSupport';
 import { MusicProvider } from './context/MusicContext';
 import { WEDDING_CONFIG, INITIAL_PHOTOS, INITIAL_WISHES } from './data/weddingData';
 import {
@@ -328,6 +329,9 @@ function AppContent() {
           brideName={config.brideName}
           groomName={config.groomName}
         />
+
+        {/* 6. Developer Support & Contribution (QR Code & Mobile UPI Auto Open) */}
+        <DeveloperSupport />
       </main>
 
       {/* Floating YouTube Wedding Song Player */}
@@ -361,12 +365,21 @@ function AppContent() {
             With boundless love, prayers, and heartfelt gratitude from the entire family. Built with pride for our dearest sister's auspicious wedding celebration.
           </p>
 
-          <div className="mt-6 text-[11px] text-slate-500 flex flex-wrap items-center justify-center gap-2">
+          <div className="mt-6 text-[11px] text-slate-500 flex flex-wrap items-center justify-center gap-3">
             <span>Sister Wedding</span>
             <span>•</span>
             <span className="text-gold-400 font-medium flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-gold-400" /> Developer : Muthuraj C B.E CSE
+              <Sparkles className="w-3 h-3 text-gold-400" /> Developer: Muthuraj C B.E CSE
             </span>
+            <button
+              onClick={() => {
+                document.getElementById('developer-support')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 hover:bg-rose-500 hover:text-white transition-all text-[11px] font-semibold flex items-center gap-1 shadow-sm active:scale-95"
+            >
+              <Heart className="w-3 h-3 fill-rose-400" />
+              <span>ஆதரவு அளிக்க / Support ❤️</span>
+            </button>
             <span>•</span>
             <span>17/09/2026</span>
           </div>
