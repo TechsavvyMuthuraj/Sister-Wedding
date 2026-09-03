@@ -44,15 +44,26 @@ function AppContent() {
     }
   });
 
-  // Photos state (initial + custom from local storage, minus deleted photos)
+  // Helper to strictly ensure ONLY genuine uploaded photos appear in Photos section (never invitation cards)
+  const isRealPhoto = (p) => {
+    if (!p) return false;
+    const id = String(p.id || '');
+    const img = String(p.frontImage || p.image || p.image_url || '');
+    if (id.startsWith('inv_')) return false;
+    if (img.includes('/invitation/')) return false;
+    if (p.badge === 'Official Card' || p.badge === 'Lagnapatrika' || p.badge === 'Family List' || p.badge === 'Blessing Cover') return false;
+    return true;
+  };
+
+  // Photos state (initial + custom from local storage, minus deleted photos, excluding invitation cards)
   const [photos, setPhotos] = useState(() => {
     try {
       const deletedIds = JSON.parse(localStorage.getItem('wedding_deleted_photo_ids') || '[]');
       const custom = JSON.parse(localStorage.getItem('wedding_custom_photos') || '[]');
       const combined = [...custom, ...INITIAL_PHOTOS];
-      return combined.filter(p => !deletedIds.includes(p.id));
+      return combined.filter(isRealPhoto).filter(p => !deletedIds.includes(p.id));
     } catch {
-      return INITIAL_PHOTOS;
+      return INITIAL_PHOTOS.filter(isRealPhoto);
     }
   });
 
@@ -78,6 +89,13 @@ function AppContent() {
     try {
       sessionStorage.removeItem('wedding_family_auth');
       localStorage.removeItem('wedding_family_auth');
+
+      // Purge any stored invitation cards from local storage
+      const cached = JSON.parse(localStorage.getItem('wedding_custom_photos') || '[]');
+      const cleaned = cached.filter(isRealPhoto);
+      if (cleaned.length !== cached.length) {
+        localStorage.setItem('wedding_custom_photos', JSON.stringify(cleaned));
+      }
     } catch {}
 
     // Fetch and merge cloud photos from Supabase
@@ -88,18 +106,18 @@ function AppContent() {
           setPhotos(prev => {
             const deletedIds = JSON.parse(localStorage.getItem('wedding_deleted_photo_ids') || '[]');
             const existingIds = new Set(prev.map(p => p.id));
-            const newCloud = cloudPhotos.filter(p => !existingIds.has(p.id) && !deletedIds.includes(p.id));
+            const newCloud = cloudPhotos.filter(isRealPhoto).filter(p => !existingIds.has(p.id) && !deletedIds.includes(p.id));
             if (newCloud.length > 0) {
               // Cache to localStorage
               try {
                 const custom = JSON.parse(localStorage.getItem('wedding_custom_photos') || '[]');
                 const customIds = new Set(custom.map(c => c.id));
-                const merged = [...newCloud.filter(p => !customIds.has(p.id)), ...custom];
+                const merged = [...newCloud.filter(p => !customIds.has(p.id)), ...custom].filter(isRealPhoto);
                 localStorage.setItem('wedding_custom_photos', JSON.stringify(merged));
               } catch {}
               return [...newCloud, ...prev];
             }
-            return prev;
+            return prev.filter(isRealPhoto);
           });
         }
 

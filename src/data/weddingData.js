@@ -172,54 +172,6 @@ export const ITINERARY = [
 
 export const INITIAL_PHOTOS = [
   {
-    id: 'inv_1',
-    title: 'அழைப்பிதழ்: ஆங்கில அழைப்பு அட்டை (Peacock Card)',
-    category: 'couple',
-    date: '17/09/2026',
-    takenBy: 'Wedding Invitation',
-    frontImage: '/invitation/card_english_peacock.jpg',
-    backTitle: 'Wedding Invitation Details',
-    backStory: 'Dr. M. Muniraj weds M. Manju on Thursday 17th September 2026 between 4.30 AM to 5.30 AM at Jayam Mahal, Nallanoor.',
-    likes: 84,
-    badge: 'Official Card'
-  },
-  {
-    id: 'inv_2',
-    title: 'அழைப்பிதழ்: சுபமுகூர்த்த அழைப்பு (Tamil Lagnapatrika)',
-    category: 'couple',
-    date: '17/09/2026',
-    takenBy: 'Family Invitation',
-    frontImage: '/invitation/card_tamil_details.jpg',
-    backTitle: 'சுபமுகூர்த்த விபரம்',
-    backStory: 'திரு. M. மாது - கஸ்தூரி அவர்களின் அன்பு மகள் M. மஞ்சுவுக்கும், திரு. M. மாரியப்பன் - மனோ அவர்களின் மகன் Dr. M. முனிராஜுக்கும் நடைபெறும் சுபமுகூர்த்தம். இடம்: ஜெயம் மஹால், தள்ளப்பள்ளம்.',
-    likes: 92,
-    badge: 'Lagnapatrika'
-  },
-  {
-    id: 'inv_3',
-    title: 'அழைப்பிதழ்: உறவினர்கள் & வரவேற்பு (Relatives List)',
-    category: 'family',
-    date: '17/09/2026',
-    takenBy: 'Family Elders',
-    frontImage: '/invitation/card_relatives.jpg',
-    backTitle: 'உற்றார் உறவினர்கள் ஆசிகள்',
-    backStory: 'சின்னபங்குநத்தம் & பிக்கம்பட்டி உற்றார் உறவினர்கள், தாத்தா-பாட்டி, தாய்மாமன், பெரியப்பா-பெரியம்மா, சித்தப்பா-சித்தி, மற்றும் பாசமிகு தம்பிகள் & தங்கை மோகன்சக்தி, முத்துராஜ், அபிநயா, மாதேஷ்.',
-    likes: 76,
-    badge: 'Family List'
-  },
-  {
-    id: 'inv_4',
-    title: 'அழைப்பிதழ் முகப்பு: ஸ்ரீ முருகப்பெருமான் துணை (Cover Art)',
-    category: 'couple',
-    date: '17/09/2026',
-    takenBy: 'Wedding Invitation',
-    frontImage: '/invitation/card_cover_murugan.jpg',
-    backTitle: 'தெய்வீக ஆசிகள்',
-    backStory: 'ஸ்ரீ விநாயகர், ஸ்ரீ கந்தசுவாமி, ஸ்ரீ பழனியாண்டவர் திருவருளால் இனிதே துவங்கும் இல்வாழ்க்கை.',
-    likes: 88,
-    badge: 'Blessing Cover'
-  },
-  {
     id: 'p3',
     title: 'மஞ்சள் காப்பு & நலங்கு விழா',
     category: 'haldi',
@@ -273,7 +225,7 @@ export const INITIAL_WISHES = [
   {
     id: 'w1',
     name: 'K. பார்த்திபன் (எ) சக்கரவர்த்தி & சங்கீதா, B.Sc.',
-    relation: 'தாய்மாமன் & மாமி (சின்னபங்குநத்தம்)',
+    relation: 'தாய்மாமன் & அக்கா  (சின்னபங்குநத்தம்)',
     message: 'அன்பு மருமகள் மஞ்சு மற்றும் டாக்டர் முனிராஜ் மருமகன் தம்பதியினர் பதினாறும் பெற்று பெருவாழ்வு வாழ மனதார வாழ்த்துகிறோம்!',
     blessingEmoji: '🌸',
     time: 'சிறப்பு ஆசி'
