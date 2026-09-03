@@ -144,8 +144,8 @@ const ElectricBorder = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Configuration
-    const octaves = 10;
+    // Configuration (Optimized for 60-120fps ultra-smooth performance)
+    const octaves = 4;
     const lacunarity = 1.6;
     const gain = 0.7;
     const amplitude = chaos;
@@ -159,8 +159,8 @@ const ElectricBorder = ({
       const width = rect.width + borderOffset * 2;
       const height = rect.height + borderOffset * 2;
 
-      // Use device pixel ratio for sharp rendering
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // Use capped device pixel ratio for smooth rendering without memory drag
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       canvas.style.width = `${width}px`;
@@ -171,12 +171,16 @@ const ElectricBorder = ({
     };
 
     let { width, height } = updateSize();
-    let lastDpr = Math.min(window.devicePixelRatio || 1, 2);
+    let lastDpr = Math.min(window.devicePixelRatio || 1, 1.25);
+    let isVisible = true;
 
     const drawElectricBorder = currentTime => {
-      if (!canvas || !ctx) return;
+      if (!canvas || !ctx || !isVisible) {
+        animationRef.current = null;
+        return;
+      }
 
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       if (dpr !== lastDpr) {
         lastDpr = dpr;
         const newSize = updateSize();
@@ -206,7 +210,7 @@ const ElectricBorder = ({
       const radius = Math.min(borderRadius, maxRadius);
 
       const approximatePerimeter = 2 * (borderWidth + borderHeight) + 2 * Math.PI * radius;
-      const sampleCount = Math.floor(approximatePerimeter / 2);
+      const sampleCount = Math.floor(approximatePerimeter / 5);
 
       ctx.beginPath();
 
@@ -239,13 +243,15 @@ const ElectricBorder = ({
           baseFlatness
         );
 
-        const displacedX = point.x + xNoise * scale;
-        const displacedY = point.y + yNoise * scale;
+        const normal = getRoundedRectNormal(progress, radius, maxRadius, borderWidth, borderHeight);
+
+        const x = point.x + normal.x * xNoise * scale;
+        const y = point.y + normal.y * yNoise * scale;
 
         if (i === 0) {
-          ctx.moveTo(displacedX, displacedY);
+          ctx.moveTo(x, y);
         } else {
-          ctx.lineTo(displacedX, displacedY);
+          ctx.lineTo(x, y);
         }
       }
 
@@ -263,6 +269,15 @@ const ElectricBorder = ({
     });
     resizeObserver.observe(container);
 
+    const intersectionObserver = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible && !animationRef.current) {
+        lastFrameTimeRef.current = performance.now();
+        animationRef.current = requestAnimationFrame(drawElectricBorder);
+      }
+    }, { threshold: 0.05 });
+    intersectionObserver.observe(container);
+
     // Start animation
     animationRef.current = requestAnimationFrame(drawElectricBorder);
 
@@ -271,8 +286,9 @@ const ElectricBorder = ({
         cancelAnimationFrame(animationRef.current);
       }
       resizeObserver.disconnect();
+      intersectionObserver.disconnect();
     };
-  }, [color, speed, chaos, borderRadius, octavedNoise, getRoundedRectPoint]);
+  }, [color, speed, chaos, borderRadius, octavedNoise, getRoundedRectPoint, getRoundedRectNormal]);
 
   const vars = {
     '--electric-border-color': color,

@@ -99,8 +99,8 @@ vec2 sceneC(vec2 frag, vec2 r) {
   float z = 0.0;
   float d = 1e3;
   vec4 O = vec4(0.0);
-  for (int k = 0; k < 39; k++) {
-    if (d <= 1e-4) break;
+  for (int k = 0; k < 14; k++) {
+    if (d <= 1e-3) break;
     O = z * normalize(vec4(P, uZoom, 0.0)) - vec4(0.0, 4.0, 1.0, 0.0) / 4.5;
     d = 1.0 - sqrt(length(O * O));
     z += d;
@@ -215,8 +215,8 @@ const Lightfall = ({
     const container = containerRef.current;
     if (!container) return;
 
-    // Use 1 on mobile / touch devices for ultra-smooth performance without GPU throttle
-    const effectiveDpr = dpr ?? (typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : Math.min(window.devicePixelRatio || 1, 1.5));
+    // Use 0.75 on mobile and 1.0 on desktop for ultra-smooth 60-120fps scrolling without GPU throttle
+    const effectiveDpr = dpr ?? (typeof window !== 'undefined' && window.innerWidth < 768 ? 0.75 : 1.0);
 
     const renderer = new Renderer({
       dpr: effectiveDpr,

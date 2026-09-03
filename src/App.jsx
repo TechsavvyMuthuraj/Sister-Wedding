@@ -8,8 +8,7 @@ import EventSchedule from './components/EventSchedule';
 import BlessingsWall from './components/BlessingsWall';
 import UploadModal from './components/UploadModal';
 import FlutterNavBar from './components/FlutterNavBar';
-import FxController from './components/FxController';
-import SplashCursor from './components/SplashCursor';
+
 import WeddingMusicPlayer from './components/WeddingMusicPlayer';
 import Lightfall from './components/Lightfall';
 import { MusicProvider } from './context/MusicContext';
@@ -80,7 +79,6 @@ function AppContent() {
 
   const [activeTab, setActiveTab] = useState('home');
   const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [activeFx, setActiveFx] = useState('splash'); // 'splash' | 'glow' | 'off'
 
   // Strict In-Memory Family Passcode Authorization
   // Never persisted: Resets to locked (false) on every page refresh or window close
@@ -279,9 +277,6 @@ function AppContent() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(7,3,14,0.3)_60%,rgba(7,3,14,0.8)_100%)] pointer-events-none" />
       </div>
 
-      {/* Visual FX Selector Widget */}
-      <FxController activeFx={activeFx} onSelectFx={setActiveFx} />
-
       {/* Flutter-style Navigation */}
       <FlutterNavBar
         activeTab={activeTab}
@@ -380,20 +375,7 @@ function AppContent() {
     </div>
   );
 
-  return (
-    <>
-      {/* Interactive WebGL Fluid Simulation if splash is active */}
-      {activeFx === 'splash' && (
-        <SplashCursor
-          COLOR="#f59e0b"
-          RAINBOW_MODE={true}
-          SPLAT_RADIUS={0.25}
-          SPLAT_FORCE={5500}
-        />
-      )}
-      {pageBody}
-    </>
-  );
+  return pageBody;
 }
 
 export default function App() {

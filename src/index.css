@@ -6,10 +6,15 @@
   color-scheme: dark;
 }
 
+/* Universal Ultra-Smooth Performance & Crisp Clicks */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Smooth, ultra-fast, stable page scrolling with Normal Arrow having Pink Rose Glowing Edges */
 html {
   scroll-behavior: smooth;
-  text-rendering: optimizeLegibility;
+  text-rendering: optimizeSpeed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='pinkEdge' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23fda4af'/%3E%3Cstop offset='50%25' stop-color='%23f43f5e'/%3E%3Cstop offset='100%25' stop-color='%23e11d48'/%3E%3C/linearGradient%3E%3Cfilter id='glow' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeDropShadow dx='0' dy='0' stdDeviation='1.8' flood-color='%23f43f5e' flood-opacity='0.9'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M3 2 L3 20 L8 15 L12.5 24 L15.5 22.5 L11 13.5 L18 13.5 Z' fill='%23ffffff' stroke='url(%23pinkEdge)' stroke-width='2' stroke-linejoin='round' filter='url(%23glow)'/%3E%3C/svg%3E") 3 2, auto;
@@ -22,13 +27,19 @@ body {
   color: #f8fafc;
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
-  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='pinkEdge' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23fda4af'/%3E%3Cstop offset='50%25' stop-color='%23f43f5e'/%3E%3Cstop offset='100%25' stop-color='%23e11d48'/%3E%3C/linearGradient%3E%3Cfilter id='glow' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeDropShadow dx='0' dy='0' stdDeviation='1.8' flood-color='%23f43f5e' flood-opacity='0.9'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M3 2 L3 20 L8 15 L12.5 24 L15.5 22.5 L11 13.5 L18 13.5 Z' fill='%23ffffff' stroke='url(%23pinkEdge)' stroke-width='2' stroke-linejoin='round' filter='url(%23glow)'/%3E%3C/svg%3E") 3 2, auto;
 }
 
-/* Elegant Arrow with Pink Rose Glow and Tip Accent on interactive elements */
+/* Ultra-responsive click tactile feedback on interactive elements */
 button, a, input, textarea, select, [role="button"], .cursor-pointer, [onclick] {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='rosePointer' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='40%25' stop-color='%23fb7185'/%3E%3Cstop offset='100%25' stop-color='%23e11d48'/%3E%3C/linearGradient%3E%3Cfilter id='roseSpark' x='-30%25' y='-30%25' width='160%25' height='160%25'%3E%3CfeDropShadow dx='0' dy='0' stdDeviation='2.5' flood-color='%23f43f5e' flood-opacity='1'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M3 2 L3 20 L8 15 L12.5 24 L15.5 22.5 L11 13.5 L18 13.5 Z' fill='%23ffffff' stroke='url(%23rosePointer)' stroke-width='2.2' stroke-linejoin='round' filter='url(%23roseSpark)'/%3E%3Ccircle cx='3.5' cy='2.5' r='1.8' fill='%23f43f5e'/%3E%3C/svg%3E") 3 2, pointer !important;
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.12s ease;
+}
+
+button:active, a:active, [role="button"]:active {
+  transform: scale(0.96) translateY(1px);
 }
 
 /* Custom Royal Gold Scrollbar */
