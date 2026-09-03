@@ -196,7 +196,7 @@ export default function CoupleSpotlight({ config, onUpdateConfig, isFamilyUnlock
             className="w-full max-w-md shadow-2xl"
           >
             <div className="relative rounded-[28px] overflow-hidden bg-royal-900 border border-gold-500/40 p-4">
-              <div className="relative h-88 sm:h-96 rounded-2xl overflow-hidden group">
+              <div className="relative h-[480px] sm:h-[540px] rounded-2xl overflow-hidden group">
                 {isUploadingBride ? (
                   <div className="w-full h-full bg-royal-950 flex flex-col items-center justify-center p-6 text-center">
                     <Loader2 className="w-10 h-10 text-gold-400 animate-spin mb-3" />
@@ -208,9 +208,9 @@ export default function CoupleSpotlight({ config, onUpdateConfig, isFamilyUnlock
                     <img
                       src={config.bridePhoto}
                       alt={`The Bride ${config.brideName}`}
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-royal-950 via-royal-950/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-royal-950/90 via-transparent to-transparent pointer-events-none" />
                     <div className="absolute top-3 right-3 flex items-center gap-2">
                       <button
                         onClick={() => checkAuthAndExecute('bride_photo')}
@@ -263,17 +263,17 @@ export default function CoupleSpotlight({ config, onUpdateConfig, isFamilyUnlock
                 )}
 
                 {/* Bride Information Overlay */}
-                <div className="absolute bottom-3 left-3 right-3 text-left bg-royal-950/85 backdrop-blur-md p-3.5 rounded-xl border border-gold-500/30">
-                  <span className="px-2.5 py-0.5 rounded-full bg-gold-500 text-royal-950 font-bold text-[10px] uppercase tracking-wider shadow-md">
+                <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:bottom-3 sm:left-3 sm:right-3 text-left bg-gradient-to-t from-royal-950 via-royal-950/95 to-royal-950/80 backdrop-blur-md p-2.5 sm:p-3.5 rounded-xl border border-gold-500/30 shadow-xl">
+                  <span className="px-2 py-0.5 rounded-full bg-gold-500 text-royal-950 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider shadow-md">
                     மணமகள் • The Bride
                   </span>
-                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-white mt-1">
-                    {config.brideName}, <span className="text-gold-300 text-sm font-sans">{config.brideQualification || 'B.Sc., B.Ed.'}</span>
+                  <h3 className="text-lg sm:text-2xl font-serif font-bold text-white mt-1 leading-tight">
+                    {config.brideName}, <span className="text-gold-300 text-xs sm:text-sm font-sans font-normal">{config.brideQualification || 'B.Sc., B.Ed.'}</span>
                   </h3>
-                  <p className="text-xs text-gold-200/90 font-serif">
+                  <p className="text-[11px] sm:text-xs text-gold-200/90 font-serif mt-0.5">
                     M. மஞ்சு • தருமபுரி மாவட்டம், சின்னபங்குநத்தம்
                   </p>
-                  <p className="text-[11px] text-slate-300 mt-0.5 font-sans">
+                  <p className="text-[10px] sm:text-[11px] text-slate-300 mt-0.5 font-sans">
                     பெற்றோர்: {config.brideParents}
                   </p>
                 </div>
@@ -292,7 +292,7 @@ export default function CoupleSpotlight({ config, onUpdateConfig, isFamilyUnlock
             className="w-full max-w-md shadow-2xl"
           >
             <div className="relative rounded-[28px] overflow-hidden bg-royal-900 border border-rose-500/40 p-4">
-              <div className="relative h-88 sm:h-96 rounded-2xl overflow-hidden group">
+              <div className="relative h-[480px] sm:h-[540px] rounded-2xl overflow-hidden group">
                 {isUploadingGroom ? (
                   <div className="w-full h-full bg-royal-950 flex flex-col items-center justify-center p-6 text-center">
                     <Loader2 className="w-10 h-10 text-rose-400 animate-spin mb-3" />
@@ -304,9 +304,9 @@ export default function CoupleSpotlight({ config, onUpdateConfig, isFamilyUnlock
                     <img
                       src={config.groomPhoto}
                       alt={`The Groom ${config.groomName}`}
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-royal-950 via-royal-950/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-royal-950/90 via-transparent to-transparent pointer-events-none" />
                     <div className="absolute top-3 right-3 flex items-center gap-2">
                       <button
                         onClick={() => checkAuthAndExecute('groom_photo')}
@@ -359,17 +359,17 @@ export default function CoupleSpotlight({ config, onUpdateConfig, isFamilyUnlock
                 )}
 
                 {/* Groom Information Overlay */}
-                <div className="absolute bottom-3 left-3 right-3 text-left bg-royal-950/85 backdrop-blur-md p-3.5 rounded-xl border border-rose-500/30">
-                  <span className="px-2.5 py-0.5 rounded-full bg-rose-500 text-white font-bold text-[10px] uppercase tracking-wider shadow-md">
+                <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:bottom-3 sm:left-3 sm:right-3 text-left bg-gradient-to-t from-royal-950 via-royal-950/95 to-royal-950/80 backdrop-blur-md p-2.5 sm:p-3.5 rounded-xl border border-rose-500/30 shadow-xl">
+                  <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white font-bold text-[9px] sm:text-[10px] uppercase tracking-wider shadow-md">
                     மணமகன் • The Groom
                   </span>
-                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-white mt-1">
-                    {config.groomName}, <span className="text-rose-300 text-sm font-sans">(PT)., MIAP., D.ACU., CPT.</span>
+                  <h3 className="text-lg sm:text-2xl font-serif font-bold text-white mt-1 leading-tight">
+                    {config.groomName}, <span className="text-rose-300 text-xs sm:text-sm font-sans font-normal">(PT)., MIAP., D.ACU., CPT.</span>
                   </h3>
-                  <p className="text-xs text-rose-200/90 font-serif">
+                  <p className="text-[11px] sm:text-xs text-rose-200/90 font-serif mt-0.5">
                     Dr. M. முனிராஜ் • தருமபுரி மாவட்டம், பிக்கம்பட்டி
                   </p>
-                  <p className="text-[11px] text-slate-300 mt-0.5 font-sans">
+                  <p className="text-[10px] sm:text-[11px] text-slate-300 mt-0.5 font-sans">
                     பெற்றோர்: {config.groomParents || 'Mr. M. Mariyappan & Mrs. Mano (திரு. M. மாரியப்பன் - மனோ)'}
                   </p>
                 </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Heart, MapPin, Sparkles, Download, Clock } from 'lucide-react';
-import Antigravity from './Antigravity';
+import Lightfall from './Lightfall';
 import AudioPlayer from './AudioPlayer';
 import { playCelebrationChime } from '../utils/audio';
 import confetti from 'canvas-confetti';
@@ -79,17 +79,24 @@ END:VCALENDAR`;
 
   return (
     <section id="home" className="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-20 pb-16 px-4">
-      {/* 3D Antigravity Particles Canvas in background */}
-      <div className="absolute inset-0 z-0 opacity-45 pointer-events-none">
-        <Antigravity
-          count={220}
-          ringRadius={8}
-          magnetRadius={7}
-          waveSpeed={0.35}
-          waveAmplitude={0.8}
-          color="#f59e0b"
-          particleSize={1.8}
-          autoAnimate={true}
+      {/* React Bits Lightfall Dynamic WebGL Background */}
+      <div className="absolute inset-0 z-0 opacity-75 pointer-events-none overflow-hidden">
+        <Lightfall
+          colors={['#fbbf24', '#f59e0b', '#f43f5e', '#fb7185', '#a855f7']}
+          backgroundColor="#07030e"
+          speed={0.7}
+          streakCount={4}
+          streakWidth={1.2}
+          streakLength={1.3}
+          glow={1.1}
+          density={0.55}
+          twinkle={0.8}
+          zoom={2.2}
+          backgroundGlow={0.5}
+          opacity={0.85}
+          mouseInteraction={true}
+          mouseStrength={0.7}
+          mouseRadius={0.7}
         />
       </div>
 
