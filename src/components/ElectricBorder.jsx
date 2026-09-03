@@ -243,10 +243,8 @@ const ElectricBorder = ({
           baseFlatness
         );
 
-        const normal = getRoundedRectNormal(progress, radius, maxRadius, borderWidth, borderHeight);
-
-        const x = point.x + normal.x * xNoise * scale;
-        const y = point.y + normal.y * yNoise * scale;
+        const x = point.x + xNoise * scale;
+        const y = point.y + yNoise * scale;
 
         if (i === 0) {
           ctx.moveTo(x, y);
@@ -288,7 +286,7 @@ const ElectricBorder = ({
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
     };
-  }, [color, speed, chaos, borderRadius, octavedNoise, getRoundedRectPoint, getRoundedRectNormal]);
+  }, [color, speed, chaos, borderRadius, octavedNoise, getRoundedRectPoint]);
 
   const vars = {
     '--electric-border-color': color,
