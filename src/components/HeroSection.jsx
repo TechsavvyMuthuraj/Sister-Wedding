@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Heart, MapPin, Sparkles, Download, Clock } from 'lucide-react';
-import Lightfall from './Lightfall';
 import AudioPlayer from './AudioPlayer';
 import { playCelebrationChime } from '../utils/audio';
 import confetti from 'canvas-confetti';
@@ -79,27 +78,6 @@ END:VCALENDAR`;
 
   return (
     <section id="home" className="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-20 pb-16 px-4">
-      {/* React Bits Lightfall Dynamic WebGL Background */}
-      <div className="absolute inset-0 z-0 opacity-75 pointer-events-none overflow-hidden">
-        <Lightfall
-          colors={['#fbbf24', '#f59e0b', '#f43f5e', '#fb7185', '#a855f7']}
-          backgroundColor="#07030e"
-          speed={0.7}
-          streakCount={4}
-          streakWidth={1.2}
-          streakLength={1.3}
-          glow={1.1}
-          density={0.55}
-          twinkle={0.8}
-          zoom={2.2}
-          backgroundGlow={0.5}
-          opacity={0.85}
-          mouseInteraction={true}
-          mouseStrength={0.7}
-          mouseRadius={0.7}
-        />
-      </div>
-
       {/* Radiant radial gradient overlays */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-br from-amber-500/15 via-rose-600/10 to-transparent blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-72 h-72 bg-purple-600/15 blur-[90px] rounded-full pointer-events-none" />

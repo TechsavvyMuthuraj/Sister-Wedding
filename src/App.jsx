@@ -11,6 +11,7 @@ import FlutterNavBar from './components/FlutterNavBar';
 import FxController from './components/FxController';
 import SplashCursor from './components/SplashCursor';
 import WeddingMusicPlayer from './components/WeddingMusicPlayer';
+import Lightfall from './components/Lightfall';
 import { MusicProvider } from './context/MusicContext';
 import { WEDDING_CONFIG, INITIAL_PHOTOS, INITIAL_WISHES } from './data/weddingData';
 import {
@@ -245,7 +246,39 @@ function AppContent() {
   }, []);
 
   const pageBody = (
-    <div className="relative min-h-screen bg-royal-950 text-slate-100 flex flex-col pb-24 md:pb-12">
+    <div className="relative min-h-screen bg-[#07030e] text-slate-100 flex flex-col pb-24 md:pb-12 selection:bg-rose-500/30 selection:text-gold-200">
+      {/* 🌟 GLOBAL LUXURY ROYAL BACKGROUND LAYER ACROSS ALL PAGES 🌟 */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* Dynamic Lightfall Stream Background */}
+        <Lightfall
+          colors={['#fbbf24', '#f59e0b', '#f43f5e', '#fb7185', '#a855f7', '#ec4899']}
+          backgroundColor="#07030e"
+          speed={0.5}
+          streakCount={3}
+          streakWidth={1.2}
+          streakLength={1.4}
+          glow={1.15}
+          density={0.4}
+          twinkle={0.8}
+          zoom={2.2}
+          backgroundGlow={0.55}
+          opacity={0.85}
+          mouseInteraction={true}
+          mouseStrength={0.6}
+          mouseRadius={0.7}
+        />
+
+        {/* Ambient Royal Palace Glow Auras across sections */}
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[850px] h-[650px] bg-gradient-to-b from-amber-500/15 via-rose-600/10 to-transparent blur-[140px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/4 -left-40 w-[550px] h-[550px] bg-purple-600/10 blur-[130px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/2 -right-40 w-[600px] h-[600px] bg-rose-600/10 blur-[140px] rounded-full pointer-events-none" />
+        <div className="absolute top-3/4 -left-32 w-[550px] h-[550px] bg-amber-500/10 blur-[130px] rounded-full pointer-events-none" />
+        <div className="absolute -bottom-20 right-1/4 w-[700px] h-[500px] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none" />
+
+        {/* Subtle Palace Radial Vignette */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(7,3,14,0.3)_60%,rgba(7,3,14,0.8)_100%)] pointer-events-none" />
+      </div>
+
       {/* Visual FX Selector Widget */}
       <FxController activeFx={activeFx} onSelectFx={setActiveFx} />
 
@@ -257,7 +290,7 @@ function AppContent() {
       />
 
       {/* Main Sections */}
-      <main className="flex-grow">
+      <main className="flex-grow relative z-10">
         {/* 1. Hero Section with 3D Antigravity Particles & 17/09/2026 Countdown */}
         <HeroSection
           config={config}
