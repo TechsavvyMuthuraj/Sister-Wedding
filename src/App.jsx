@@ -51,13 +51,15 @@ function AppContent() {
     }
   });
 
-  // Helper to strictly ensure ONLY genuine uploaded photos appear in Photos section (never invitation cards)
+  // Helper to strictly ensure ONLY genuine uploaded photos appear in Photos section (never invitation cards or old mock photos)
   const isRealPhoto = (p) => {
     if (!p) return false;
     const id = String(p.id || '');
     const img = String(p.frontImage || p.image || p.image_url || '');
     if (id.startsWith('inv_')) return false;
     if (img.includes('/invitation/')) return false;
+    if (img.includes('unsplash.com')) return false;
+    if (['p1', 'p2', 'p3', 'p4', 'p5', 'p6'].includes(id)) return false;
     if (p.badge === 'Official Card' || p.badge === 'Lagnapatrika' || p.badge === 'Family List' || p.badge === 'Blessing Cover') return false;
     return true;
   };
@@ -69,7 +71,11 @@ function AppContent() {
       const custom = JSON.parse(localStorage.getItem('wedding_custom_photos') || '[]');
       const photoMap = new Map();
       INITIAL_PHOTOS.forEach(p => photoMap.set(p.id, p));
-      custom.forEach(p => photoMap.set(p.id, { ...(photoMap.get(p.id) || {}), ...p }));
+      custom.forEach(p => {
+        if (!['p1', 'p2', 'p3', 'p4', 'p5', 'p6'].includes(p.id) && !String(p.frontImage || p.image || '').includes('unsplash')) {
+          photoMap.set(p.id, { ...(photoMap.get(p.id) || {}), ...p });
+        }
+      });
       return Array.from(photoMap.values()).filter(isRealPhoto).filter(p => !deletedIds.includes(p.id));
     } catch {
       return INITIAL_PHOTOS.filter(isRealPhoto);
@@ -81,7 +87,8 @@ function AppContent() {
     try {
       const deletedWishIds = JSON.parse(localStorage.getItem('wedding_deleted_wish_ids') || '[]');
       const custom = JSON.parse(localStorage.getItem('wedding_custom_wishes') || '[]');
-      const combined = [...custom, ...INITIAL_WISHES];
+      const realCustom = custom.filter(w => !['w1', 'w2', 'w3', 'w4'].includes(w.id));
+      const combined = [...realCustom, ...INITIAL_WISHES];
       return combined.filter(w => !deletedWishIds.includes(w.id));
     } catch {
       return INITIAL_WISHES;
@@ -100,11 +107,18 @@ function AppContent() {
       sessionStorage.removeItem('wedding_family_auth');
       localStorage.removeItem('wedding_family_auth');
 
-      // Purge any stored invitation cards from local storage
+      // Purge any stored invitation cards and old mock photos from local storage
       const cached = JSON.parse(localStorage.getItem('wedding_custom_photos') || '[]');
       const cleaned = cached.filter(isRealPhoto);
       if (cleaned.length !== cached.length) {
         localStorage.setItem('wedding_custom_photos', JSON.stringify(cleaned));
+      }
+
+      // Purge any stored mock wishes from local storage
+      const cachedWishes = JSON.parse(localStorage.getItem('wedding_custom_wishes') || '[]');
+      const cleanedWishes = cachedWishes.filter(w => !['w1', 'w2', 'w3', 'w4'].includes(w.id));
+      if (cleanedWishes.length !== cachedWishes.length) {
+        localStorage.setItem('wedding_custom_wishes', JSON.stringify(cleanedWishes));
       }
     } catch { }
 

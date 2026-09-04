@@ -103,7 +103,7 @@ export const INVITATION_CARDS = [
     id: 'peacock_english',
     title: 'Wedding Invitation (English Royal Peacock Card)',
     subtitle: 'Dr. M. Muniraj weds M. Manju • Jayam Mahal, Thallapallam',
-    image: '/invitation/card_english_peacock.png',
+    image: '/invitation/card_english_peacock.jpg',
     badge: 'English Card',
     description: 'Official wedding card • Pennagaram Main Road, Opp. Jayam Engineering College, Thallapallam, Dharmapuri.'
   },
@@ -111,7 +111,7 @@ export const INVITATION_CARDS = [
     id: 'tamil_cover',
     title: 'திருமண அழைப்பிதழ் முகப்பு (Lord Murugan & Ganesha)',
     subtitle: 'Dr. M. முனிராஜ் weds M. மஞ்சு • 17.09.2026',
-    image: '/invitation/card_cover_murugan.png',
+    image: '/invitation/card_cover_murugan.jpg',
     badge: 'Tamil Cover',
     description: 'Traditional Tamil invitation cover blessed with Sri Vigneswara, Lord Palaniandavar, and auspicious mangala vadhyam.'
   },
@@ -127,7 +127,7 @@ export const INVITATION_CARDS = [
     id: 'relatives_schedule',
     title: 'உற்றார் உறவினர்கள் & நிகழ்ச்சி நிரல் (Family & Reception Schedule)',
     subtitle: '16.09 நிச்சயதார்த்தம் இரவு 9.00 மணி • 17.09 வரவேற்பு காலை 7.00 - 10.00 மணி',
-    image: '/invitation/card_relatives.png',
+    image: '/invitation/card_relatives.jpg',
     badge: 'Schedule & Relatives',
     description: 'Family tree, elders blessings, uncle & aunt names, reception timings, and location map QR.'
   }
@@ -170,88 +170,7 @@ export const ITINERARY = [
   }
 ];
 
-export const INITIAL_PHOTOS = [
-  {
-    id: 'p3',
-    title: 'மஞ்சள் காப்பு & நலங்கு விழா',
-    category: 'haldi',
-    date: 'வீட்டு விழா',
-    takenBy: 'தம்பிகள் கூட்டம்',
-    frontImage: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80',
-    backTitle: 'மங்கல மஞ்சள் நீர்',
-    backStory: 'குடும்பத்தினர் அனைவரும் ஒன்று கூடி அக்காவுக்கு மஞ்சள் பூசி மகிழ்ந்த தருணம்.',
-    likes: 58,
-    badge: 'Haldi'
-  },
-  {
-    id: 'p4',
-    title: 'பெற்றோர்கள் ஆசிகள் (Mr. Madhu & Kasthuri)',
-    category: 'family',
-    date: 'பூஜை நாள்',
-    takenBy: 'குடும்பத்தார்',
-    frontImage: 'https://images.unsplash.com/photo-1544077960-604201fe74bc?auto=format&fit=crop&w=900&q=80',
-    backTitle: 'அப்பா - அம்மா ஆசிர்வாதம்',
-    backStory: 'அன்பு தந்தை M. மாது மற்றும் தாய் கஸ்தூரி அவர்களின் மனமார்ந்த ஆசிகள் (சின்னபங்குநத்தம்).',
-    likes: 95,
-    badge: 'Parents'
-  },
-  {
-    id: 'p5',
-    title: 'பாசமிகு தம்பிகள் & தங்கை (Mohan Sakthi, Muthuraj, Abinaya, Madhesh)',
-    category: 'siblings',
-    date: 'திருமண ஏற்பாடுகள்',
-    takenBy: 'தம்பிகள் & தங்கை',
-    frontImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=900&q=80',
-    backTitle: 'உடன் பிறந்தோர்',
-    backStory: 'எங்கள் பாசமிகு அக்கா மஞ்சுவுக்கு என்றென்றும் பாசத்தோடு இருக்கும் மோகன்சக்தி, முத்துராஜ், அபிநயா, மாதேஷ்.',
-    likes: 99,
-    badge: 'Siblings'
-  },
-  {
-    id: 'p6',
-    title: 'ஜெயம் மஹால், தள்ளப்பள்ளம் மங்கல மேடை',
-    category: 'couple',
-    date: '17/09/2026',
-    takenBy: 'Jayam Mahal',
-    frontImage: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=900&q=80',
-    backTitle: 'சுபமுகூர்த்த மண்டபம்',
-    backStory: '17.09.2026 வியாழக்கிழமை பிரம்ம முகூர்த்தத்தில் மங்கல நாண் பூட்டும் புண்ணிய பூமி (பென்னாகரம் மெயின் ரோடு, தள்ளப்பள்ளம்).',
-    likes: 85,
-    badge: 'Mandapam'
-  }
-];
+export const INITIAL_PHOTOS = [];
 
-export const INITIAL_WISHES = [
-  {
-    id: 'w1',
-    name: 'K. பார்த்திபன் (எ) சக்கரவர்த்தி & சங்கீதா, B.Sc.',
-    relation: 'தாய்மாமன் & அக்கா  (சின்னபங்குநத்தம்)',
-    message: 'அன்பு மருமகள் மஞ்சு மற்றும் டாக்டர் முனிராஜ் மருமகன் தம்பதியினர் பதினாறும் பெற்று பெருவாழ்வு வாழ மனதார வாழ்த்துகிறோம்!',
-    blessingEmoji: '🌸',
-    time: 'சிறப்பு ஆசி'
-  },
-  {
-    id: 'w2',
-    name: 'M. மோகன்சக்தி, C. முத்துராஜ், C. அபிநயா, C. மாதேஷ்',
-    relation: 'பாசமிகு தம்பிகள் & தங்கை',
-    message: 'எங்கள் பாசமலர் அக்கா மஞ்சுவுக்கு இனிய திருமண நல்வாழ்த்துகள்! முனிராஜ் மாமாவுடன் இணைந்து என்றென்றும் மகிழ்ச்சியோடு வாழ எங்கள் இதயபூர்வ வாழ்த்துகள்! 💖🎉',
-    blessingEmoji: '💐',
-    time: 'தம்பிகள் & தங்கை ஆசி'
-  },
-  {
-    id: 'w3',
-    name: 'S. கமலேசன் & அகிலா, M.A., B.Ed.',
-    relation: 'அக்கா - மாமா (செல்லன்கொட்டாய்)',
-    message: 'டாக்டர் முனிராஜ் & மஞ்சு தம்பதியினர் இல்வாழ்க்கையில் எல்லா நலமும் வளமும் பெற்று நீடூழி வாழ இறைவனை பிரார்த்திக்கிறோம்.',
-    blessingEmoji: '🪔',
-    time: 'நேற்று'
-  },
-  {
-    id: 'w4',
-    name: 'M. மாரியப்பன் & மனோ',
-    relation: 'மணமகன் பெற்றோர் (பிக்கம்பட்டி)',
-    message: 'எங்கள் இல்லத்திற்கு மகளாக வரும் அன்பு மருமகள் மஞ்சுவை பாசத்தோடு வரவேற்கிறோம். தம்பதிகள் பல்லாண்டு காலம் நலமுடன் வாழ்க!',
-    blessingEmoji: '🕉️',
-    time: '2 நாட்களுக்கு முன்'
-  }
-];
+export const INITIAL_WISHES = [];
+

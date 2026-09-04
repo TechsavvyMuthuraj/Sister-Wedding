@@ -48,13 +48,15 @@ export default function PhotoGallery({ photos, onOpenUpload, onToggleLike, onDel
     setTimeout(() => setToastMessage(''), 3500);
   };
 
-  // Strictly filter out any invitation cards (Invitations are showcased exclusively in the Invitation section)
+  // Strictly filter out any invitation cards or old mock photos
   const filteredPhotos = photos.filter(photo => {
     if (!photo) return false;
     const id = String(photo.id || '');
     const img = String(photo.frontImage || photo.image || photo.image_url || '');
     if (id.startsWith('inv_')) return false;
     if (img.includes('/invitation/')) return false;
+    if (img.includes('unsplash.com')) return false;
+    if (['p1', 'p2', 'p3', 'p4', 'p5', 'p6'].includes(id)) return false;
     if (photo.badge === 'Official Card' || photo.badge === 'Lagnapatrika' || photo.badge === 'Family List' || photo.badge === 'Blessing Cover') return false;
 
     if (activeCategory === 'all') return true;

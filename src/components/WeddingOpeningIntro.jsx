@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, Heart, Volume2, VolumeX } from 'lucide-react';
+import { Sparkles, Heart } from 'lucide-react';
 import GoldDustOverlay from './GoldDustOverlay';
 
 export default function WeddingOpeningIntro({ onEnter, config }) {
@@ -18,11 +18,18 @@ export default function WeddingOpeningIntro({ onEnter, config }) {
 
   const introAudioRef = useRef(null);
 
-  // Initialize and play the 10-second intro song using URL-safe path
+  // Initialize and play the 10-second intro song from /public/wedding song/
   useEffect(() => {
-    const audio = new Audio('/song/wedding_intro_10s.mp3');
+    const audio = new Audio('/wedding%20song/wedding%20song%2010sec.mp3');
     audio.preload = 'auto';
     introAudioRef.current = audio;
+
+    audio.onerror = () => {
+      if (audio.src.includes('wedding%20song') || audio.src.includes('10sec')) {
+        audio.src = '/song/wedding_intro_10s.mp3';
+        tryPlayAudio();
+      }
+    };
 
     const tryPlayAudio = () => {
       if (audio && audio.paused) {
@@ -31,12 +38,11 @@ export default function WeddingOpeningIntro({ onEnter, config }) {
             setAudioStarted(true);
           })
           .catch((err) => {
-            console.log('Intro audio waiting for user gesture:', err);
+            console.log('Intro audio autoplay waiting for user interaction:', err);
           });
       }
     };
 
-    // Attempt autoplay immediately
     tryPlayAudio();
 
     // Auto-advance when the 10-second song finishes
@@ -44,24 +50,18 @@ export default function WeddingOpeningIntro({ onEnter, config }) {
       handleEnter();
     };
 
-    // Immediate playback unlock on ANY user touch or click
+    // User interaction fallback for browsers that block instant autoplay
     const handleFirstTap = () => {
       tryPlayAudio();
       window.removeEventListener('pointerdown', handleFirstTap);
-      window.removeEventListener('touchstart', handleFirstTap);
-      window.removeEventListener('click', handleFirstTap);
       window.removeEventListener('keydown', handleFirstTap);
     };
 
     window.addEventListener('pointerdown', handleFirstTap, { once: true });
-    window.addEventListener('touchstart', handleFirstTap, { once: true });
-    window.addEventListener('click', handleFirstTap, { once: true });
     window.addEventListener('keydown', handleFirstTap, { once: true });
 
     return () => {
       window.removeEventListener('pointerdown', handleFirstTap);
-      window.removeEventListener('touchstart', handleFirstTap);
-      window.removeEventListener('click', handleFirstTap);
       window.removeEventListener('keydown', handleFirstTap);
       if (audio) {
         audio.pause();
@@ -345,44 +345,6 @@ export default function WeddingOpeningIntro({ onEnter, config }) {
             <Sparkles className="w-4 h-4 fill-royal-950 animate-pulse" />
             <span className="tracking-wide">திருமணத்திற்குள் நுழைய • Enter Wedding</span>
             <Heart className="w-4 h-4 fill-royal-950 group-hover:scale-125 transition-transform" />
-          </button>
-        </div>
-
-        {/* Audio Status & Sound Toggle Indicator */}
-        <div
-          className={`mt-4 transition-all duration-700 transform ${
-            step >= 3
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 translate-y-2 pointer-events-none'
-          }`}
-        >
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (introAudioRef.current) {
-                if (introAudioRef.current.paused) {
-                  introAudioRef.current.play().then(() => setAudioStarted(true)).catch(() => {});
-                } else {
-                  introAudioRef.current.pause();
-                  setAudioStarted(false);
-                }
-              }
-            }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-royal-950/80 border border-gold-500/35 text-xs text-gold-300 shadow-md hover:border-gold-400 hover:scale-105 active:scale-95 transition-all"
-            title="Toggle Intro Audio"
-          >
-            {audioStarted ? (
-              <>
-                <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-                <span className="text-emerald-300 font-medium">🎵 பாடல் ஒலிக்கிறது / Music Playing</span>
-              </>
-            ) : (
-              <>
-                <VolumeX className="w-3.5 h-3.5 text-amber-400 animate-bounce" />
-                <span className="text-gold-300 font-medium">🔊 பாடலை இயக்க தொடவும் / Tap for Audio 🎵</span>
-              </>
-            )}
           </button>
         </div>
 

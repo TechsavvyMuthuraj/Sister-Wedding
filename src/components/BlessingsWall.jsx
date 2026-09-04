@@ -205,55 +205,69 @@ export default function BlessingsWall({ wishes, onAddWish, onUpdateWish, onDelet
 
         {/* Wishes Feed */}
         <div className="lg:col-span-7 space-y-4 max-h-[580px] overflow-y-auto pr-1">
-          {wishes.map((wish) => (
-            <div
-              key={wish.id}
-              className="p-5 rounded-2xl bg-royal-900/70 border border-slate-800/80 hover:border-gold-500/40 transition-all text-left group backdrop-blur-sm relative"
-            >
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gold-500/15 border border-gold-500/30 flex items-center justify-center text-lg shrink-0">
-                    {wish.blessingEmoji || '🌸'}
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-white group-hover:text-gold-300 transition-colors">
-                      {wish.name}
-                    </h4>
-                    <p className="text-[11px] text-slate-400">
-                      {wish.relation || 'Family Member'} • {wish.time || 'Auspicious Wish'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Actions: Edit & Delete & Heart */}
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    onClick={() => handleStartEdit(wish)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-gold-300 hover:bg-royal-950/80 transition-colors"
-                    title="Edit Blessing / திருத்தவும்"
-                    aria-label="Edit Wish"
-                  >
-                    <Pencil className="w-3.5 h-3.5" />
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(wish.id)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-royal-950/80 transition-colors"
-                    title="Delete Blessing / நீக்கவும்"
-                    aria-label="Delete Wish"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-
-                  <Heart className="w-4 h-4 text-rose-400 fill-rose-400/20 group-hover:scale-110 transition-transform ml-1" />
-                </div>
+          {wishes.length === 0 ? (
+            <div className="p-8 sm:p-12 rounded-3xl bg-royal-900/60 border border-gold-500/30 text-center flex flex-col items-center justify-center backdrop-blur-md shadow-xl">
+              <div className="w-16 h-16 rounded-full bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-3xl mb-4">
+                💌
               </div>
-
-              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-sans mt-2 pl-13 italic">
-                "{wish.message}"
+              <h4 className="text-base sm:text-lg font-serif font-bold text-white mb-2">
+                முதல் வாழ்த்தை பதிவு செய்யுங்கள்!
+              </h4>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-md font-sans leading-relaxed">
+                Be the first to share your loving blessings and prayers for Sister Manju &amp; Dr. Muniraj for their auspicious wedding!
               </p>
             </div>
-          ))}
+          ) : (
+            wishes.map((wish) => (
+              <div
+                key={wish.id}
+                className="p-5 rounded-2xl bg-royal-900/70 border border-slate-800/80 hover:border-gold-500/40 transition-all text-left group backdrop-blur-sm relative"
+              >
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gold-500/15 border border-gold-500/30 flex items-center justify-center text-lg shrink-0">
+                      {wish.blessingEmoji || '🌸'}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white group-hover:text-gold-300 transition-colors">
+                        {wish.name}
+                      </h4>
+                      <p className="text-[11px] text-slate-400">
+                        {wish.relation || 'Family Member'} • {wish.time || 'Auspicious Wish'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Actions: Edit & Delete & Heart */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={() => handleStartEdit(wish)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-gold-300 hover:bg-royal-950/80 transition-colors"
+                      title="Edit Blessing / திருத்தவும்"
+                      aria-label="Edit Wish"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(wish.id)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-royal-950/80 transition-colors"
+                      title="Delete Blessing / நீக்கவும்"
+                      aria-label="Delete Wish"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+
+                    <Heart className="w-4 h-4 text-rose-400 fill-rose-400/20 group-hover:scale-110 transition-transform ml-1" />
+                  </div>
+                </div>
+
+                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-sans mt-2 pl-13 italic">
+                  "{wish.message}"
+                </p>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
