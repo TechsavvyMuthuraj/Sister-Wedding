@@ -8,7 +8,7 @@ export const WEDDING_PLAYLIST = [
     title: 'Thangame Thangame',
     movie: 'Idhayam Murali',
     artist: 'Thaman S • Atharvaa • Preity Mukhundhan',
-    url: '/song/Thangame%20Thangame%20-%20RaagTune.mp3',
+    url: '/song/thangame.mp3',
     thumbnail: '/invitation/card_english_peacock.png'
   }
 ];
@@ -127,6 +127,9 @@ export function MusicProvider({ children }) {
     const audio = audioRef.current;
     if (audio) {
       audio.muted = isMuted;
+      if (!audio.src || !audio.src.includes('thangame')) {
+        audio.src = currentSong.url;
+      }
       const playPromise = audio.play();
       if (playPromise !== undefined) {
         playPromise
@@ -134,11 +137,22 @@ export function MusicProvider({ children }) {
             setIsPlaying(true);
           })
           .catch((err) => {
-            console.warn('Playback error (browser policy):', err);
+            console.warn('Playback waiting for user gesture:', err);
+            const resumeOnTouch = () => {
+              if (audioRef.current && audioRef.current.paused) {
+                audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+              }
+              window.removeEventListener('pointerdown', resumeOnTouch);
+              window.removeEventListener('touchstart', resumeOnTouch);
+              window.removeEventListener('click', resumeOnTouch);
+            };
+            window.addEventListener('pointerdown', resumeOnTouch, { once: true });
+            window.addEventListener('touchstart', resumeOnTouch, { once: true });
+            window.addEventListener('click', resumeOnTouch, { once: true });
           });
       }
     }
-  }, [isMuted]);
+  }, [isMuted, currentSong]);
 
   const pauseSong = useCallback(() => {
     const audio = audioRef.current;
@@ -224,7 +238,8 @@ export function MusicProvider({ children }) {
       <audio
         ref={audioRef}
         src={currentSong.url}
-        preload="metadata"
+        preload="auto"
+        loop
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleSongEnded}
