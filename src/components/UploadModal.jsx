@@ -87,8 +87,14 @@ export default function UploadModal({ isOpen, onClose, onPhotoUploaded, isFamily
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-      <div className="relative w-full max-w-lg rounded-3xl bg-royal-900 border border-gold-500/40 p-6 sm:p-8 shadow-2xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-lg rounded-3xl bg-royal-900 border border-gold-500/40 p-6 sm:p-8 shadow-2xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Glow backdrop */}
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-gold-500/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-rose-500/20 rounded-full blur-3xl pointer-events-none" />

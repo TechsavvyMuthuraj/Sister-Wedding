@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Heart, Maximize2, Share2, Upload, Sparkles, Filter,
   ChevronLeft, ChevronRight, X, Download, Trash2, Lock, Unlock, ShieldCheck, Edit3, ImagePlus
@@ -23,6 +23,8 @@ const CATEGORIES = [
 export default function PhotoGallery({ photos, onOpenUpload, onToggleLike, onDeletePhoto, onUpdatePhoto, isFamilyUnlocked, setIsFamilyUnlocked }) {
   const [activeCategory, setActiveCategory] = useState('all');
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [selectedPhotoId, setSelectedPhotoId] = useState(null);
+  const [touchStartX, setTouchStartX] = useState(0);
 
   // Passcode modal state
   const [isPasscodeOpen, setIsPasscodeOpen] = useState(false);
@@ -71,6 +73,19 @@ export default function PhotoGallery({ photos, onOpenUpload, onToggleLike, onDel
     }
   };
 
+  // Lightbox helpers
+  const openLightbox = (photo, index) => {
+    if (photo) {
+      setSelectedPhotoId(photo.id);
+      setLightboxIndex(index !== undefined ? index : 0);
+    }
+  };
+
+  const closeLightbox = () => {
+    setSelectedPhotoId(null);
+    setLightboxIndex(null);
+  };
+
   // Handle Delete Request
   const handleRequestDelete = (e, photo) => {
     if (e) e.stopPropagation();
@@ -81,7 +96,7 @@ export default function PhotoGallery({ photos, onOpenUpload, onToggleLike, onDel
       );
       if (confirmDelete) {
         if (onDeletePhoto) onDeletePhoto(photo.id);
-        if (lightboxIndex !== null) setLightboxIndex(null);
+        closeLightbox();
         showToast('புகைப்படம் நீக்கப்பட்டது / Photo successfully removed');
       }
     } else {
@@ -115,7 +130,7 @@ export default function PhotoGallery({ photos, onOpenUpload, onToggleLike, onDel
       }, 400);
     } else if (passcodeAction === 'delete' && targetPhotoToDelete) {
       if (onDeletePhoto) onDeletePhoto(targetPhotoToDelete.id);
-      if (lightboxIndex !== null) setLightboxIndex(null);
+      closeLightbox();
       showToast('புகைப்படம் நீக்கப்பட்டது / Photo successfully removed');
       setTargetPhotoToDelete(null);
     } else if (passcodeAction === 'edit' && targetPhotoToDelete) {
@@ -149,10 +164,98 @@ export default function PhotoGallery({ photos, onOpenUpload, onToggleLike, onDel
     }
   };
 
-  const currentLightboxPhoto = lightboxIndex !== null ? filteredPhotos[lightboxIndex] : null;
+  // Resolve active lightbox photo (prioritize ID match for instant reactive updates)
+  const currentLightboxPhoto = useMemo(() => {
+    if (selectedPhotoId) {
+      const found = photos.find(p => p.id === selectedPhotoId);
+      if (found) return found;
+    }
+    if (lightboxIndex !== null && filteredPhotos[lightboxIndex]) {
+      return filteredPhotos[lightboxIndex];
+    }
+    return null;
+  }, [photos, selectedPhotoId, lightboxIndex, filteredPhotos]);
+
+  const currentPhotoIndex = useMemo(() => {
+    if (!currentLightboxPhoto || !filteredPhotos.length) return 0;
+    const idx = filteredPhotos.findIndex(p => p.id === currentLightboxPhoto.id);
+    return idx >= 0 ? idx : 0;
+  }, [currentLightboxPhoto, filteredPhotos]);
+
+  const handlePrevPhoto = (e) => {
+    if (e) e.stopPropagation();
+    if (!filteredPhotos.length) return;
+    const currentIdx = currentLightboxPhoto
+      ? filteredPhotos.findIndex(p => p.id === currentLightboxPhoto.id)
+      : 0;
+    const prevIdx = (currentIdx - 1 + filteredPhotos.length) % filteredPhotos.length;
+    const prevPhoto = filteredPhotos[prevIdx];
+    if (prevPhoto) {
+      setSelectedPhotoId(prevPhoto.id);
+      setLightboxIndex(prevIdx);
+    }
+  };
+
+  const handleNextPhoto = (e) => {
+    if (e) e.stopPropagation();
+    if (!filteredPhotos.length) return;
+    const currentIdx = currentLightboxPhoto
+      ? filteredPhotos.findIndex(p => p.id === currentLightboxPhoto.id)
+      : 0;
+    const nextIdx = (currentIdx + 1) % filteredPhotos.length;
+    const nextPhoto = filteredPhotos[nextIdx];
+    if (nextPhoto) {
+      setSelectedPhotoId(nextPhoto.id);
+      setLightboxIndex(nextIdx);
+    }
+  };
+
+  const handleTouchStart = (e) => {
+    if (e.touches && e.touches[0]) {
+      setTouchStartX(e.touches[0].clientX);
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (e.changedTouches && e.changedTouches[0]) {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diffX = touchStartX - touchEndX;
+      if (diffX > 45) {
+        handleNextPhoto();
+      } else if (diffX < -45) {
+        handlePrevPhoto();
+      }
+    }
+  };
+
+  // Keyboard navigation & body scroll lock while lightbox is open
+  useEffect(() => {
+    if (!currentLightboxPhoto) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        closeLightbox();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrevPhoto();
+      } else if (e.key === 'ArrowRight') {
+        handleNextPhoto();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [currentLightboxPhoto, filteredPhotos]);
 
   return (
-    <section id="photos" className="relative py-20 px-4 max-w-7xl mx-auto">
+    <section id="gallery" data-section="photos" className="relative py-20 px-4 max-w-7xl mx-auto">
+      {/* Fallback anchor for both #photos and #gallery deep links */}
+      <div id="photos" className="absolute -top-24 pointer-events-none" aria-hidden="true" />
       {/* Radiant ambient glow behind the photos section */}
       <div className="absolute top-12 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-purple-600/10 blur-[130px] rounded-full pointer-events-none" />
 
@@ -287,9 +390,23 @@ export default function PhotoGallery({ photos, onOpenUpload, onToggleLike, onDel
                   <span className="px-3 py-1 rounded-full bg-royal-950/85 backdrop-blur-md text-[11px] font-medium text-gold-300 border border-gold-500/40 shadow-sm capitalize">
                     {photo.badge || photo.category}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full bg-gold-500/20 text-[10px] text-gold-300 font-mono border border-gold-500/30">
-                    Touch / Flip
-                  </span>
+                  <div className="flex items-center gap-1.5 pointer-events-auto">
+                    <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-gold-500/20 text-[10px] text-gold-300 font-mono border border-gold-500/30">
+                      Flip
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openLightbox(photo, index);
+                      }}
+                      className="p-1.5 rounded-full bg-royal-950/90 text-gold-300 hover:bg-gold-500 hover:text-royal-950 border border-gold-500/40 shadow-md transition-all hover:scale-110 active:scale-95"
+                      title="Open Fullscreen Lightbox"
+                      aria-label="Open Fullscreen Lightbox"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Bottom title info overlay with rich dark gradient scrim */}
@@ -322,7 +439,17 @@ export default function PhotoGallery({ photos, onOpenUpload, onToggleLike, onDel
 
                 <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-gold-300">
                   <span>Captured by: <strong className="text-white">{photo.takenBy || 'Family'}</strong></span>
-                  <span className="text-[10px] text-slate-400 font-mono">Click Full View</span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openLightbox(photo, index);
+                    }}
+                    className="px-2.5 py-1 rounded-full bg-gold-500/25 hover:bg-gold-500 hover:text-royal-950 text-gold-300 border border-gold-500/50 text-[10px] font-mono transition-all pointer-events-auto flex items-center gap-1 active:scale-95"
+                  >
+                    <Maximize2 className="w-3 h-3" />
+                    <span>Open Full View</span>
+                  </button>
                 </div>
               </div>
             );
@@ -405,7 +532,7 @@ export default function PhotoGallery({ photos, onOpenUpload, onToggleLike, onDel
                     </button>
 
                     <button
-                      onClick={() => setLightboxIndex(index)}
+                      onClick={() => openLightbox(photo, index)}
                       className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold-500/15 hover:bg-gold-500 hover:text-royal-950 text-gold-300 border border-gold-500/40 transition-all font-medium text-[11px]"
                       title="Expand to Fullscreen Lightbox"
                     >
@@ -420,104 +547,139 @@ export default function PhotoGallery({ photos, onOpenUpload, onToggleLike, onDel
         </div>
       )}
 
-      {/* Lightbox Modal */}
+      {/* 🌟 LUXURY FULLSCREEN LIGHTBOX MODAL 🌟 */}
       {currentLightboxPhoto && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl p-4"
-          onClick={() => setLightboxIndex(null)}
+          className="fixed inset-0 z-[100] flex flex-col justify-between bg-black/95 backdrop-blur-2xl select-none overflow-y-auto no-scrollbar p-3 sm:p-6"
+          onClick={closeLightbox}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
-          <button
-            onClick={() => setLightboxIndex(null)}
-            className="absolute top-4 right-4 z-50 p-3 rounded-full bg-royal-900/80 text-white hover:bg-rose-600 transition-colors"
-            aria-label="Close Lightbox"
-          >
-            <X className="w-6 h-6" />
-          </button>
-
-          {/* Prev button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setLightboxIndex((lightboxIndex - 1 + filteredPhotos.length) % filteredPhotos.length);
-            }}
-            className="absolute left-4 p-3 rounded-full bg-royal-900/80 text-white hover:bg-gold-500 hover:text-royal-950 transition-colors z-50"
-            aria-label="Previous photo"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-
-          {/* Next button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setLightboxIndex((lightboxIndex + 1) % filteredPhotos.length);
-            }}
-            className="absolute right-4 p-3 rounded-full bg-royal-900/80 text-white hover:bg-gold-500 hover:text-royal-950 transition-colors z-50"
-            aria-label="Next photo"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
-
-          {/* Photo display container */}
+          {/* Top Bar: Counter & Close Button */}
           <div
-            className="relative max-w-4xl max-h-[85vh] flex flex-col items-center"
+            className="w-full flex items-center justify-between max-w-4xl mx-auto py-2 z-10 shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
-              src={currentLightboxPhoto.frontImage || currentLightboxPhoto.image || currentLightboxPhoto.image_url}
-              alt={currentLightboxPhoto.title}
-              className="max-h-[68vh] max-w-full rounded-2xl object-contain shadow-2xl border border-gold-500/30"
-            />
+            <div className="flex items-center gap-2">
+              <span className="px-3.5 py-1.5 rounded-full bg-royal-900/90 border border-gold-500/40 text-gold-300 text-xs sm:text-sm font-serif font-semibold shadow-md">
+                📸 {currentPhotoIndex + 1} / {filteredPhotos.length}
+              </span>
+              <span className="hidden sm:inline-flex px-3 py-1 rounded-full bg-gold-500/15 border border-gold-500/30 text-gold-400 text-[11px] font-mono uppercase tracking-wider">
+                {currentLightboxPhoto.category || 'Wedding Memory'}
+              </span>
+            </div>
 
-            {/* Lightbox details */}
-            <div className="mt-4 text-center text-white max-w-lg">
-              <h3 className="text-xl font-serif font-bold text-gold-300">
-                {currentLightboxPhoto.title}
-              </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                {currentLightboxPhoto.date || '17/09/2026'} • Captured by {currentLightboxPhoto.takenBy || 'Family'}
-              </p>
-              <p className="text-sm text-slate-300 mt-2 font-sans italic">
-                "{currentLightboxPhoto.backStory || currentLightboxPhoto.caption || 'A memorable family moment that will stay in our hearts forever.'}"
-              </p>
+            <button
+              onClick={closeLightbox}
+              className="p-2.5 rounded-full bg-royal-900/90 border border-gold-500/40 text-gold-300 hover:bg-rose-600 hover:text-white hover:border-rose-500 transition-all shadow-lg active:scale-95 flex items-center gap-1"
+              aria-label="Close Lightbox"
+              title="மூடு / Close"
+            >
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          </div>
 
-              <div className="mt-4 flex items-center justify-center gap-3">
+          {/* Main Visual Display (Center with Side Nav Chevrons) */}
+          <div
+            className="relative w-full max-w-4xl mx-auto my-auto flex items-center justify-center py-2 px-1 sm:px-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Prev Button */}
+            <button
+              onClick={handlePrevPhoto}
+              className="absolute left-1 sm:left-2 z-20 p-2.5 sm:p-3.5 rounded-full bg-royal-900/90 border border-gold-500/50 text-gold-300 shadow-[0_4px_20px_rgba(0,0,0,0.8)] transition-all active:bg-gold-500 active:text-royal-950 hover:border-gold-300 active:scale-90"
+              aria-label="Previous photo"
+              title="முந்தைய புகைப்படம் / Previous"
+            >
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+
+            {/* Photo */}
+            <div className="relative flex items-center justify-center max-w-full">
+              <img
+                src={currentLightboxPhoto.frontImage || currentLightboxPhoto.image || currentLightboxPhoto.image_url}
+                alt={currentLightboxPhoto.title}
+                className="max-h-[48vh] sm:max-h-[62vh] max-w-full w-auto object-contain rounded-2xl shadow-[0_12px_45px_rgba(0,0,0,0.9),0_0_25px_rgba(245,158,11,0.25)] border border-gold-500/35 select-none"
+              />
+            </div>
+
+            {/* Next Button */}
+            <button
+              onClick={handleNextPhoto}
+              className="absolute right-1 sm:right-2 z-20 p-2.5 sm:p-3.5 rounded-full bg-royal-900/90 border border-gold-500/50 text-gold-300 shadow-[0_4px_20px_rgba(0,0,0,0.8)] transition-all active:bg-gold-500 active:text-royal-950 hover:border-gold-300 active:scale-90"
+              aria-label="Next photo"
+              title="அடுத்த புகைப்படம் / Next"
+            >
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          </div>
+
+          {/* Bottom Details & Action Options Bar */}
+          <div
+            className="w-full max-w-xl mx-auto text-center shrink-0 z-10 pt-2 pb-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Title & Subtitle */}
+            <h3 className="text-lg sm:text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold-100 via-amber-200 to-rose-200">
+              {currentLightboxPhoto.title}
+            </h3>
+            <p className="text-xs sm:text-sm text-gold-200/80 mt-0.5">
+              {currentLightboxPhoto.date || '17/09/2026'} • 📸 Captured by <strong className="text-white">{currentLightboxPhoto.takenBy || currentLightboxPhoto.uploader || 'Family'}</strong>
+            </p>
+
+            {/* Backstory Quote */}
+            {(currentLightboxPhoto.backStory || currentLightboxPhoto.caption) && (
+              <p className="text-xs sm:text-sm text-slate-300 italic font-sans mt-2 max-w-md mx-auto line-clamp-2 px-3 py-1.5 rounded-xl bg-royal-950/60 border border-gold-500/20">
+                "{currentLightboxPhoto.backStory || currentLightboxPhoto.caption}"
+              </p>
+            )}
+
+            {/* Action Options Grid / Dock */}
+            <div className="w-full max-w-md mx-auto mt-3 px-2">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-center items-center gap-2 sm:gap-3">
+                {/* 1. Likes Button */}
                 <button
                   onClick={(e) => handleLike(e, currentLightboxPhoto.id)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full border transition-all ${
+                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs sm:text-sm font-semibold transition-all active:scale-95 ${
                     likedPhotos[currentLightboxPhoto.id]
-                      ? 'bg-rose-500 text-white border-rose-400'
-                      : 'bg-royal-900 border-gold-500/40 text-gold-300 hover:bg-gold-500 hover:text-royal-950'
+                      ? 'bg-rose-500/90 text-white border-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.4)]'
+                      : 'bg-royal-900/90 border-gold-500/40 text-gold-300 hover:bg-gold-500 hover:text-royal-950'
                   }`}
                 >
-                  <Heart className="w-4 h-4 fill-current" />
+                  <Heart className={`w-4 h-4 ${likedPhotos[currentLightboxPhoto.id] ? 'fill-current text-white' : 'text-gold-400'}`} />
                   <span>{currentLightboxPhoto.likes || 0} Likes</span>
                 </button>
 
+                {/* 2. Edit Details Button */}
                 <button
                   onClick={() => handleRequestEdit(null, currentLightboxPhoto)}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-royal-900 border border-gold-500/40 text-gold-300 hover:bg-gold-500 hover:text-royal-950 transition-colors"
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-royal-900/90 border border-gold-500/40 text-gold-300 hover:bg-gold-500 hover:text-royal-950 transition-all active:scale-95 text-xs sm:text-sm font-semibold shadow-md"
                 >
-                  <Edit3 className="w-4 h-4" />
+                  <Edit3 className="w-4 h-4 text-amber-400" />
                   <span>Edit Details</span>
                 </button>
 
+                {/* 3. Download Button */}
                 <button
                   onClick={() => {
-                    downloadPhoto(currentLightboxPhoto.frontImage || currentLightboxPhoto.image || currentLightboxPhoto.image_url, `${currentLightboxPhoto.title}.jpg`);
-                    showToast('பதிவிறக்கம் செய்யப்படுகிறது / Downloading...');
+                    downloadPhoto(
+                      currentLightboxPhoto.frontImage || currentLightboxPhoto.image || currentLightboxPhoto.image_url,
+                      `${currentLightboxPhoto.title || 'wedding-photo'}.jpg`
+                    );
+                    showToast('பதிவிறக்கம் செய்யப்படுகிறது / Downloading Photo...');
                   }}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-royal-900 border border-gold-500/40 text-gold-300 hover:bg-gold-500 hover:text-royal-950 transition-colors"
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-royal-900/90 border border-gold-500/40 text-gold-300 hover:bg-gold-500 hover:text-royal-950 transition-all active:scale-95 text-xs sm:text-sm font-semibold shadow-md"
                 >
-                  <Download className="w-4 h-4" />
+                  <Download className="w-4 h-4 text-amber-400" />
                   <span>Download</span>
                 </button>
 
+                {/* 4. Delete Button */}
                 <button
                   onClick={() => handleRequestDelete(null, currentLightboxPhoto)}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-rose-600/80 hover:bg-rose-600 text-white transition-colors"
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-rose-950/85 border border-rose-500/50 text-rose-300 hover:bg-rose-600 hover:text-white transition-all active:scale-95 text-xs sm:text-sm font-semibold shadow-md"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4 text-rose-400" />
                   <span>Delete</span>
                 </button>
               </div>
@@ -546,10 +708,24 @@ export default function PhotoGallery({ photos, onOpenUpload, onToggleLike, onDel
           photo={editingPhoto}
           isOpen={Boolean(editingPhoto)}
           onClose={() => setEditingPhoto(null)}
-          onUpdate={(updatedData) => {
+          onSave={async (updatedData) => {
             if (onUpdatePhoto) {
-              onUpdatePhoto(editingPhoto.id, updatedData);
+              await onUpdatePhoto(updatedData);
             }
+            if (selectedPhotoId === updatedData.id) {
+              setSelectedPhotoId(updatedData.id);
+            }
+            setEditingPhoto(null);
+            showToast('புகைப்பட விபரம் மாற்றப்பட்டது! / Photo Details Updated');
+          }}
+          onUpdate={async (updatedData) => {
+            if (onUpdatePhoto) {
+              await onUpdatePhoto(updatedData);
+            }
+            if (selectedPhotoId === updatedData.id) {
+              setSelectedPhotoId(updatedData.id);
+            }
+            setEditingPhoto(null);
             showToast('புகைப்பட விபரம் மாற்றப்பட்டது! / Photo Details Updated');
           }}
         />

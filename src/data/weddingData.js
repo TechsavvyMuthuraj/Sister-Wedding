@@ -103,7 +103,7 @@ export const INVITATION_CARDS = [
     id: 'peacock_english',
     title: 'Wedding Invitation (English Royal Peacock Card)',
     subtitle: 'Dr. M. Muniraj weds M. Manju • Jayam Mahal, Thallapallam',
-    image: '/invitation/card_english_peacock.jpg',
+    image: '/invitation/card_english_peacock.png',
     badge: 'English Card',
     description: 'Official wedding card • Pennagaram Main Road, Opp. Jayam Engineering College, Thallapallam, Dharmapuri.'
   },
@@ -111,7 +111,7 @@ export const INVITATION_CARDS = [
     id: 'tamil_cover',
     title: 'திருமண அழைப்பிதழ் முகப்பு (Lord Murugan & Ganesha)',
     subtitle: 'Dr. M. முனிராஜ் weds M. மஞ்சு • 17.09.2026',
-    image: '/invitation/card_cover_murugan.jpg',
+    image: '/invitation/card_cover_murugan.png',
     badge: 'Tamil Cover',
     description: 'Traditional Tamil invitation cover blessed with Sri Vigneswara, Lord Palaniandavar, and auspicious mangala vadhyam.'
   },
@@ -127,7 +127,7 @@ export const INVITATION_CARDS = [
     id: 'relatives_schedule',
     title: 'உற்றார் உறவினர்கள் & நிகழ்ச்சி நிரல் (Family & Reception Schedule)',
     subtitle: '16.09 நிச்சயதார்த்தம் இரவு 9.00 மணி • 17.09 வரவேற்பு காலை 7.00 - 10.00 மணி',
-    image: '/invitation/card_relatives.jpg',
+    image: '/invitation/card_relatives.png',
     badge: 'Schedule & Relatives',
     description: 'Family tree, elders blessings, uncle & aunt names, reception timings, and location map QR.'
   }

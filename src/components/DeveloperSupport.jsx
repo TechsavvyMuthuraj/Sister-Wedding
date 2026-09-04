@@ -4,24 +4,26 @@ import confetti from 'canvas-confetti';
 import { playCelebrationChime } from '../utils/audio';
 
 export default function DeveloperSupport() {
-  const [amount, setAmount] = useState('100');
+  const [amount, setAmount] = useState('501');
   const [customAmount, setCustomAmount] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const UPI_ID = 'muthurajc@slc';
-  const PAYEE_NAME = 'Muthuraj C B.E CSE';
+  // Updated UPI ID & Payee Name as requested
+  const UPI_ID = '9629656044@fam';
+  const PAYEE_NAME = 'MANJU WEDDING';
 
-  const PRESET_AMOUNTS = ['50', '100', '200', '500', '1001'];
+  // Traditional auspicious Tamil wedding Moi preset amounts
+  const PRESET_AMOUNTS = ['101', '251', '501', '1001', '2001', '5001'];
 
   const currentAmount = customAmount ? customAmount : amount;
 
-  // Construct UPI Intent URI
-  const upiIntentUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${encodeURIComponent(currentAmount)}&cu=INR&tn=${encodeURIComponent('Sister Wedding Website Support')}`;
-  const gpayUrl = `tez://upi/pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${encodeURIComponent(currentAmount)}&cu=INR`;
-  const phonepeUrl = `phonepe://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${encodeURIComponent(currentAmount)}&cu=INR`;
+  // Construct UPI Intent URIs with transaction note
+  const upiIntentUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${encodeURIComponent(currentAmount)}&cu=INR&tn=${encodeURIComponent('Manju Wedding Moi')}`;
+  const gpayUrl = `tez://upi/pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${encodeURIComponent(currentAmount)}&cu=INR&tn=${encodeURIComponent('Manju Wedding Moi')}`;
+  const phonepeUrl = `phonepe://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${encodeURIComponent(currentAmount)}&cu=INR&tn=${encodeURIComponent('Manju Wedding Moi')}`;
 
-  // Dynamic QR code URL via QR Server API (fallback to local image)
-  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=${encodeURIComponent(upiIntentUrl)}`;
+  // Dynamic QR code URL via QR Server API (fallback to local uploaded QR)
+  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=10&data=${encodeURIComponent(upiIntentUrl)}`;
 
   const handleCopyUPI = () => {
     navigator.clipboard.writeText(UPI_ID);
@@ -42,36 +44,42 @@ export default function DeveloperSupport() {
 
   return (
     <section id="developer-support" className="relative py-20 px-4 max-w-4xl mx-auto">
+      {/* Anchor for moi-payment */}
+      <span id="moi-payment" className="absolute -top-24" />
+
       {/* Ambient glowing background aura */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-r from-amber-500/15 via-rose-600/15 to-purple-600/15 blur-[130px] rounded-full pointer-events-none" />
 
-      <div className="relative z-10 rounded-3xl bg-royal-900/80 border border-gold-500/40 p-6 sm:p-10 backdrop-blur-2xl shadow-[0_12px_45px_rgba(0,0,0,0.7),0_0_30px_rgba(245,158,11,0.2)] text-center">
-        {/* Heart Sparkle Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs font-semibold uppercase tracking-wider mb-4 shadow-sm">
-          <Heart className="w-3.5 h-3.5 fill-rose-400 text-rose-400 animate-pulse" />
-          <span>Developer Support • அன்பின் ஆதரவு</span>
+      <div className="relative z-10 rounded-3xl bg-royal-900/85 border border-gold-500/40 p-6 sm:p-10 backdrop-blur-2xl shadow-[0_12px_45px_rgba(0,0,0,0.7),0_0_30px_rgba(245,158,11,0.2)] text-center">
+        {/* Wedding Moi Sparkle Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-gold-500/40 text-gold-300 text-xs font-semibold uppercase tracking-wider mb-4 shadow-gold-glow">
+          <Gift className="w-3.5 h-3.5 text-gold-400 animate-pulse" />
+          <span>மணமகள் வீட்டார் மொய் பணம் • Online Wedding Moi</span>
         </div>
 
         {/* Section Heading */}
         <h2 className="text-2xl sm:text-4xl font-serif font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-100 via-amber-200 to-rose-200">
-          Developer-க்கு உங்கள் ஆதரவு ❤️
+          மணமகள் வீட்டார் மொய் பணம் செலுத்தும் முறை
         </h2>
+        <p className="text-xs sm:text-sm font-sans font-medium text-gold-300/90 mt-1 uppercase tracking-wider">
+          Online Wedding Moi Payment
+        </p>
 
-        {/* Message from Developer / Family */}
+        {/* Message for Wedding Guests */}
         <div className="mt-4 max-w-2xl mx-auto space-y-3">
           <p className="text-slate-200 text-sm sm:text-base leading-relaxed font-sans">
-            உங்கள் இனிய திருமண தருணங்களை இன்னும் சிறப்பாகவும் நினைவாகவும் மாற்றும் வகையில், இந்த Wedding Website அன்புடன் வடிவமைத்து உருவாக்கப்பட்டது. இந்த Website உங்களுக்கு பிடித்திருந்தால், Developer-க்கு உங்கள் விருப்பப்படி எந்தத் தொகையையும் QR Code மூலம் Support செய்யலாம்.
+            எங்கள் பாசமிகு சகோதரி <strong className="text-gold-200 font-semibold">M. மஞ்சு</strong> அவர்களின் திருமண நல்வைபவத்திற்கு நேரில் வர இயலாத அல்லது ஆன்லைன் மூலம் அன்பளிப்பு / மொய் பணம் செலுத்த விரும்பும் உற்றார், உறவினர்கள் மற்றும் நண்பர்கள் கீழே உள்ள QR Code அல்லது நேரடி UPI ஆப் வழியாக மணமகள் குடும்பத்தாருக்கு மொய் பணம் செலுத்தலாம்.
           </p>
 
-          <div className="p-3.5 rounded-2xl bg-royal-950/70 border border-gold-500/30 text-gold-300 text-xs sm:text-sm font-serif italic leading-relaxed shadow-inner">
-            ✨ பணம் செலுத்துவது முற்றிலும் கட்டாயமில்லை — உங்கள் அன்பும், வாழ்த்துகளும், மகிழ்ச்சியும் எங்களுக்கு போதுமானது! ❤️✨
+          <div className="p-3.5 rounded-2xl bg-royal-950/80 border border-gold-500/30 text-gold-300 text-xs sm:text-sm font-serif italic leading-relaxed shadow-inner">
+            ✨ உங்கள் வருகையும், மனமார்ந்த நல்வாழ்த்துகளுமே எங்களுக்கு மிகப்பெரிய ஆசீர்வாதம்! அன்புடன் மணமகள் வீட்டார் ❤️✨
           </div>
         </div>
 
         {/* Amount Selector */}
         <div className="mt-8 pt-6 border-t border-slate-800/80">
           <label className="text-xs uppercase font-mono tracking-widest text-gold-400 font-semibold block mb-3">
-            விருப்பமான தொகையை தேர்வு செய்யவும் (Select Amount):
+            மொய் தொகையை தேர்வு செய்யவும் (Select Moi Amount):
           </label>
 
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
@@ -104,7 +112,7 @@ export default function DeveloperSupport() {
               <input
                 type="number"
                 min="1"
-                placeholder="Enter amount"
+                placeholder="Enter custom amount"
                 value={customAmount}
                 onChange={(e) => setCustomAmount(e.target.value)}
                 className="w-full pl-7 pr-3 py-1.5 rounded-xl bg-royal-950 border border-slate-700 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-gold-400"
@@ -124,17 +132,20 @@ export default function DeveloperSupport() {
 
             <img
               src={qrApiUrl}
-              alt="UPI QR Code for Developer Support"
+              alt="UPI QR Code - MANJU WEDDING MOI"
               onError={(e) => {
-                e.currentTarget.src = '/developer_qr.png';
+                e.currentTarget.src = '/moi_qr.png';
               }}
               className="w-56 h-56 sm:w-64 sm:h-64 object-contain rounded-xl"
             />
 
-            {/* Amount Badge below QR */}
+            {/* Amount & Payee Badge below QR */}
             <div className="mt-2 text-center text-royal-950 font-bold text-sm flex items-center justify-center gap-1.5 font-mono">
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>Paying: ₹{currentAmount || '100'}</span>
+              <span>Moi Amount: ₹{currentAmount || '501'}</span>
+            </div>
+            <div className="text-[11px] text-slate-600 font-sans font-semibold text-center mt-0.5">
+              Payee: {PAYEE_NAME}
             </div>
           </div>
 
@@ -146,23 +157,23 @@ export default function DeveloperSupport() {
         {/* Mobile Direct UPI Launch Buttons */}
         <div className="mt-6">
           <span className="text-xs uppercase font-mono tracking-wider text-slate-300 font-semibold block mb-3">
-            Mobile Web Direct Payment (மொபைலில் நேரடியாக திறக்க):
+            Mobile Web Direct Payment (மொபைலில் நேரடியாக செலுத்த):
           </span>
 
           <div className="flex flex-wrap items-center justify-center gap-3">
             {/* Any UPI App Direct */}
             <button
               onClick={() => handlePayViaApp(upiIntentUrl)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500 via-gold-400 to-amber-600 text-royal-950 font-bold text-xs sm:text-sm shadow-gold-glow hover:scale-105 active:scale-95 transition-all"
+              className="btn-royal-primary flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500 via-gold-400 to-amber-600 text-royal-950 font-bold text-xs sm:text-sm shadow-gold-glow active:scale-95"
             >
               <Smartphone className="w-4 h-4" />
-              <span>Pay with Any UPI App (₹{currentAmount || '100'})</span>
+              <span>Pay with Any UPI App (₹{currentAmount || '501'})</span>
             </button>
 
             {/* Google Pay */}
             <button
               onClick={() => handlePayViaApp(gpayUrl)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-royal-950/90 border border-slate-700 hover:border-gold-500/50 text-slate-200 hover:text-white text-xs font-semibold hover:scale-105 transition-all shadow-md"
+              className="btn-royal-secondary flex items-center gap-2 px-4 py-2.5 rounded-full bg-royal-950/90 border border-slate-700 hover:border-gold-500/50 text-slate-200 hover:text-white text-xs font-semibold active:scale-95 shadow-md"
             >
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
               <span>Google Pay</span>
@@ -171,7 +182,7 @@ export default function DeveloperSupport() {
             {/* PhonePe */}
             <button
               onClick={() => handlePayViaApp(phonepeUrl)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-royal-950/90 border border-slate-700 hover:border-gold-500/50 text-slate-200 hover:text-white text-xs font-semibold hover:scale-105 transition-all shadow-md"
+              className="btn-royal-secondary flex items-center gap-2 px-4 py-2.5 rounded-full bg-royal-950/90 border border-slate-700 hover:border-gold-500/50 text-slate-200 hover:text-white text-xs font-semibold active:scale-95 shadow-md"
             >
               <span className="w-2.5 h-2.5 rounded-full bg-purple-400" />
               <span>PhonePe</span>
@@ -181,7 +192,7 @@ export default function DeveloperSupport() {
 
         {/* UPI ID Copy Card */}
         <div className="mt-6 pt-6 border-t border-slate-800/80 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-300">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-royal-950/90 border border-slate-800">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-royal-950/90 border border-slate-800 shadow-sm">
             <span className="text-slate-400">UPI ID:</span>
             <strong className="text-gold-300 font-mono text-sm">{UPI_ID}</strong>
             <button
@@ -194,16 +205,17 @@ export default function DeveloperSupport() {
           </div>
 
           <div className="text-slate-400 text-xs">
-            Payee: <strong className="text-white font-serif">{PAYEE_NAME}</strong>
+            Payee Name: <strong className="text-white font-serif">{PAYEE_NAME}</strong>
           </div>
         </div>
 
         {/* Heartfelt Note */}
-        <div className="mt-6 text-center text-xs text-slate-400 flex items-center justify-center gap-1.5">
+        <div className="mt-6 text-center text-xs text-slate-400 flex items-center justify-center gap-1.5 font-serif italic">
           <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500" />
-          <span>உங்கள் வருகைக்கும் ஆதரவிற்கும் எங்கள் மனமார்ந்த நன்றிகள்! • Thank You!</span>
+          <span>உங்கள் அன்பான வாழ்த்துகளுக்கும் வருகைக்கும் எங்கள் மனமார்ந்த நன்றிகள்! • நன்றி •</span>
         </div>
       </div>
     </section>
   );
 }
+

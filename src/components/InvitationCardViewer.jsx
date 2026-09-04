@@ -8,6 +8,16 @@ export default function InvitationCardViewer({ config }) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   const currentCard = INVITATION_CARDS[selectedCardIndex];
+  const fileExt = currentCard.image.endsWith('.png') ? 'png' : 'jpg';
+
+  const handleImageError = (e) => {
+    const src = e.currentTarget.src;
+    if (src.endsWith('.jpg')) {
+      e.currentTarget.src = src.replace(/\.jpg$/, '.png');
+    } else if (src.endsWith('.png')) {
+      e.currentTarget.src = src.replace(/\.png$/, '.jpg');
+    }
+  };
 
   return (
     <section id="invitation" className="relative py-20 px-4 max-w-6xl mx-auto">
@@ -67,6 +77,7 @@ export default function InvitationCardViewer({ config }) {
               <img
                 src={currentCard.image}
                 alt={currentCard.title}
+                onError={handleImageError}
                 className="w-full h-auto max-h-[720px] object-contain transition-transform duration-500 group-hover:scale-101"
               />
 
@@ -108,7 +119,7 @@ export default function InvitationCardViewer({ config }) {
               <div className="flex items-center gap-2 shrink-0">
                 <a
                   href={currentCard.image}
-                  download={`Sister_Wedding_Invitation_${currentCard.id}.jpg`}
+                  download={`Sister_Wedding_Invitation_${currentCard.id}.${fileExt}`}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-royal-850 hover:bg-gold-500 hover:text-royal-950 text-gold-300 text-xs font-semibold border border-gold-500/40 transition-all"
                 >
                   <Download className="w-3.5 h-3.5" />
@@ -167,7 +178,7 @@ export default function InvitationCardViewer({ config }) {
       {/* Lightbox Zoom Modal */}
       {isLightboxOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-2xl p-4"
           onClick={() => setIsLightboxOpen(false)}
         >
           <button
@@ -209,6 +220,7 @@ export default function InvitationCardViewer({ config }) {
             <img
               src={currentCard.image}
               alt={currentCard.title}
+              onError={handleImageError}
               className="max-h-[82vh] max-w-full rounded-2xl object-contain shadow-2xl border-2 border-gold-500/40"
             />
             <div className="mt-3 text-center">

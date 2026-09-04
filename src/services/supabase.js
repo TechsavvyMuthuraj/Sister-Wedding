@@ -112,46 +112,74 @@ export async function fetchFamilyPhotos() {
 }
 
 // Update photo details (Title, Category, Caption, Uploader, or Photo URL) in Supabase and cache
-export async function updateFamilyPhoto({ id, title, category, caption, uploader, imageUrl }) {
+export async function updateFamilyPhoto(photo) {
+  if (!photo || !photo.id) return { success: false };
+  const { id, title, category, caption, uploader, takenBy, imageUrl, frontImage, image, image_url, backStory } = photo;
+  const finalImage = imageUrl || frontImage || image || image_url;
+  const finalUploader = uploader || takenBy || 'Family Member';
+  const finalCaption = caption || backStory || '';
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id));
+
   if (isSupabaseConfigured && supabase) {
     try {
       const updateData = {
         title,
         category,
-        caption,
-        uploader
+        caption: finalCaption,
+        uploader: finalUploader
       };
-      if (imageUrl) {
-        updateData.image_url = imageUrl;
+      if (finalImage) {
+        updateData.image_url = finalImage;
       }
-      await supabase
-        .from('photos')
-        .update(updateData)
-        .eq('id', id);
+
+      if (isUuid) {
+        const { error } = await supabase
+          .from('photos')
+          .update(updateData)
+          .eq('id', id);
+        if (error) {
+          console.warn('Supabase photo update notice:', error.message);
+        }
+      } else {
+        try {
+          const { error } = await supabase
+            .from('photos')
+            .update(updateData)
+            .eq('id', String(id));
+          if (error) {
+            console.warn('Supabase photo update notice:', error.message);
+          }
+        } catch (e) {}
+      }
     } catch (err) {
       console.warn('Supabase photo update warning:', err);
     }
   }
 
-  // Update in localStorage
+  // Always update in localStorage (upsert so changes persist across all refreshes)
   try {
     const localPhotos = JSON.parse(localStorage.getItem('wedding_custom_photos') || '[]');
-    const updated = localPhotos.map(p => {
-      if (p.id === id) {
-        return {
-          ...p,
-          title,
-          category,
-          caption,
-          takenBy: uploader,
-          frontImage: imageUrl || p.frontImage || p.image,
-          image: imageUrl || p.image || p.frontImage,
-          image_url: imageUrl || p.image_url
-        };
-      }
-      return p;
-    });
-    localStorage.setItem('wedding_custom_photos', JSON.stringify(updated));
+    const existingIndex = localPhotos.findIndex(p => p.id === id);
+    const updatedObj = {
+      id,
+      title,
+      category,
+      caption: finalCaption,
+      uploader: finalUploader,
+      takenBy: finalUploader,
+      frontImage: finalImage,
+      image: finalImage,
+      image_url: finalImage,
+      backStory: finalCaption,
+      isCustom: true
+    };
+    if (existingIndex >= 0) {
+      localPhotos[existingIndex] = { ...localPhotos[existingIndex], ...updatedObj };
+    } else {
+      localPhotos.push(updatedObj);
+    }
+    localStorage.setItem('wedding_custom_photos', JSON.stringify(localPhotos));
   } catch (e) {
     console.error('Error updating photo in local storage:', e);
   }
@@ -235,6 +263,74 @@ export async function fetchWishes() {
   } catch (err) {
     console.warn('Supabase fetch wishes error:', err);
     return [];
+  }
+}
+
+// Update an existing wish in Supabase and local cache
+export async function updateWish({ id, name, relation, message, blessingEmoji }) {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      await supabase
+        .from('wishes')
+        .update({
+          name,
+          relation,
+          message,
+          blessing_emoji: blessingEmoji
+        })
+        .eq('id', id);
+    } catch (err) {
+      console.warn('Supabase wish update warning:', err);
+    }
+  }
+
+  // Update in localStorage
+  try {
+    const localWishes = JSON.parse(localStorage.getItem('wedding_custom_wishes') || '[]');
+    const updated = localWishes.map(w => {
+      if (w.id === id) {
+        return {
+          ...w,
+          name,
+          relation,
+          message,
+          blessingEmoji: blessingEmoji || w.blessingEmoji
+        };
+      }
+      return w;
+    });
+    localStorage.setItem('wedding_custom_wishes', JSON.stringify(updated));
+  } catch (e) {
+    console.error('Error updating wish in local storage:', e);
+  }
+
+  return { success: true };
+}
+
+// Delete a wish from Supabase and local cache
+export async function deleteWishFromCloud(wishId) {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      await supabase.from('wishes').delete().eq('id', wishId);
+    } catch (err) {
+      console.warn('Supabase delete wish warning:', err);
+    }
+  }
+
+  // Remove from localStorage
+  try {
+    const localWishes = JSON.parse(localStorage.getItem('wedding_custom_wishes') || '[]');
+    const updated = localWishes.filter(w => w.id !== wishId);
+    localStorage.setItem('wedding_custom_wishes', JSON.stringify(updated));
+
+    // Also persist deleted IDs so default/initial wishes stay deleted too
+    const deletedIds = JSON.parse(localStorage.getItem('wedding_deleted_wish_ids') || '[]');
+    if (!deletedIds.includes(wishId)) {
+      deletedIds.push(wishId);
+      localStorage.setItem('wedding_deleted_wish_ids', JSON.stringify(deletedIds));
+    }
+  } catch (e) {
+    console.error('Error removing wish from local storage:', e);
   }
 }
 

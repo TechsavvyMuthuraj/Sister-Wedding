@@ -34,6 +34,7 @@ ALTER TABLE public.photos ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public photos are viewable by everyone" ON public.photos;
 DROP POLICY IF EXISTS "Public can upload photos" ON public.photos;
 DROP POLICY IF EXISTS "Public can update photo likes" ON public.photos;
+DROP POLICY IF EXISTS "Public can update photos" ON public.photos;
 DROP POLICY IF EXISTS "Public can delete photos" ON public.photos;
 
 -- RLS Policies for photos:
@@ -45,9 +46,10 @@ CREATE POLICY "Public can upload photos"
 ON public.photos FOR INSERT 
 WITH CHECK (true);
 
-CREATE POLICY "Public can update photo likes" 
+CREATE POLICY "Public can update photos" 
 ON public.photos FOR UPDATE 
-USING (true);
+USING (true)
+WITH CHECK (true);
 
 CREATE POLICY "Public can delete photos" 
 ON public.photos FOR DELETE 
@@ -75,6 +77,8 @@ ALTER TABLE public.wishes ENABLE ROW LEVEL SECURITY;
 -- Drop existing policies if any
 DROP POLICY IF EXISTS "Public wishes are viewable by everyone" ON public.wishes;
 DROP POLICY IF EXISTS "Public can submit wishes" ON public.wishes;
+DROP POLICY IF EXISTS "Public can update wishes" ON public.wishes;
+DROP POLICY IF EXISTS "Public can delete wishes" ON public.wishes;
 
 -- RLS Policies for wishes:
 CREATE POLICY "Public wishes are viewable by everyone" 
@@ -84,6 +88,15 @@ USING (true);
 CREATE POLICY "Public can submit wishes" 
 ON public.wishes FOR INSERT 
 WITH CHECK (true);
+
+CREATE POLICY "Public can update wishes" 
+ON public.wishes FOR UPDATE 
+USING (true)
+WITH CHECK (true);
+
+CREATE POLICY "Public can delete wishes" 
+ON public.wishes FOR DELETE 
+USING (true);
 
 
 -- ==============================================================================

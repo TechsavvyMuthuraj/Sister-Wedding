@@ -71,22 +71,27 @@ export default function FlutterNavBar({ activeTab, onSelectTab, onOpenUpload }) 
 
       {/* Desktop Top Glassmorphic Navigation Bar */}
       <header className="hidden md:flex fixed top-0 left-0 right-0 z-40 bg-royal-950/80 backdrop-blur-xl border-b border-gold-500/20 px-8 py-3.5 items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-500 to-rose-500 flex items-center justify-center shadow-gold-glow">
+        <button
+          onClick={() => handleTabClick('home')}
+          className="flex items-center gap-3 text-left group transition-all hover:opacity-95 active:scale-95 cursor-pointer focus:outline-none"
+          title="முகப்புப் பக்கத்திற்குச் செல்ல / Go to Home"
+          aria-label="Sister Wedding Home"
+        >
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-500 to-rose-500 flex items-center justify-center shadow-gold-glow group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(245,158,11,0.6)] transition-all">
             <Heart className="w-5 h-5 text-royal-950 fill-royal-950" />
           </div>
           <div>
-            <span className="font-serif font-bold text-white text-base tracking-wide">
+            <span className="font-serif font-bold text-white text-base tracking-wide group-hover:text-gold-300 transition-colors">
               Sister Wedding
             </span>
-            <span className="text-[11px] text-gold-400 font-mono block -mt-0.5">
+            <span className="text-[11px] text-gold-400 font-mono block -mt-0.5 group-hover:text-gold-200 transition-colors">
               17th September 2026
             </span>
           </div>
-        </div>
+        </button>
 
         {/* Center Nav Links */}
-        <div className="flex items-center gap-1.5 p-1 rounded-full bg-royal-900/80 border border-slate-700/60">
+        <div className="flex items-center gap-1.5 p-1 rounded-full bg-royal-900/85 border border-gold-500/25 shadow-sm backdrop-blur-md">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -94,14 +99,19 @@ export default function FlutterNavBar({ activeTab, onSelectTab, onOpenUpload }) 
               <button
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+                className={`group relative flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
                   isActive
-                    ? 'bg-gradient-to-r from-amber-500 to-gold-600 text-royal-950 font-bold shadow-gold-glow'
+                    ? 'bg-gradient-to-r from-amber-500 via-gold-400 to-amber-500 text-royal-950 font-bold shadow-[0_0_18px_rgba(245,158,11,0.5)] scale-[1.03]'
                     : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className={`w-3.5 h-3.5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
                 <span>{item.label}</span>
+
+                {/* Subtle Hover Underline Accent */}
+                {!isActive && (
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-1/2 h-0.5 bg-gold-400/70 rounded-full transition-all duration-300 opacity-0 group-hover:opacity-100" />
+                )}
               </button>
             );
           })}

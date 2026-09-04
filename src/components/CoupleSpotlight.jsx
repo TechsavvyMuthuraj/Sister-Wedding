@@ -381,8 +381,14 @@ export default function CoupleSpotlight({ config, onUpdateConfig, isFamilyUnlock
 
       {/* Edit Details & Photos Modal */}
       {isEditing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <div className="relative w-full max-w-lg rounded-3xl bg-royal-900 border border-gold-500/40 p-6 sm:p-8 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto"
+          onClick={() => setIsEditing(false)}
+        >
+          <div
+            className="relative w-full max-w-lg rounded-3xl bg-royal-900 border border-gold-500/40 p-6 sm:p-8 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setIsEditing(false)}
               className="absolute top-4 right-4 p-2 rounded-full bg-royal-950/60 text-slate-400 hover:text-white"

@@ -1,131 +1,204 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 
 const MusicContext = createContext(null);
 
-export const SONG_DETAILS = {
-  id: 'd88V78UDUlo',
-  title: 'Thangame Thangame',
-  movie: 'Idhayam Murali',
-  artist: 'Thaman S • Atharvaa • Preity Mukhundhan',
-  thumbnail: 'https://i.ytimg.com/vi/d88V78UDUlo/hqdefault.jpg',
-  youtubeUrl: 'https://youtu.be/d88V78UDUlo'
-};
+export const WEDDING_PLAYLIST = [
+  {
+    id: 'thangame-thangame',
+    title: 'Thangame Thangame',
+    movie: 'Idhayam Murali',
+    artist: 'Thaman S • Atharvaa • Preity Mukhundhan',
+    url: '/song/Thangame%20Thangame%20-%20RaagTune.mp3',
+    thumbnail: '/invitation/card_english_peacock.png'
+  }
+];
+
+export const SONG_DETAILS = WEDDING_PLAYLIST[0];
 
 export function MusicProvider({ children }) {
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const playerRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
-  // Initialize YouTube IFrame API
-  useEffect(() => {
-    // 1. Load YouTube Iframe API if not already present
-    if (!window.YT) {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+  const audioRef = useRef(null);
+  const fadeIntervalRef = useRef(null);
+  const isCrossfadingRef = useRef(false);
+  const currentTrackIndexRef = useRef(currentTrackIndex);
+  currentTrackIndexRef.current = currentTrackIndex;
+
+  const currentSong = WEDDING_PLAYLIST[currentTrackIndex] || WEDDING_PLAYLIST[0];
+
+  // Helper for smooth volume ramp
+  const rampVolume = useCallback((fromVol, toVol, durationMs, onComplete) => {
+    const audio = audioRef.current;
+    if (!audio) {
+      if (onComplete) onComplete();
+      return;
     }
 
-    const initPlayer = () => {
-      if (window.YT && window.YT.Player && !playerRef.current) {
-        playerRef.current = new window.YT.Player('youtube-hidden-audio-player', {
-          height: '1',
-          width: '1',
-          videoId: SONG_DETAILS.id,
-          playerVars: {
-            autoplay: 0,
-            controls: 0,
-            disablekb: 1,
-            fs: 0,
-            loop: 1,
-            playlist: SONG_DETAILS.id,
-            modestbranding: 1,
-            rel: 0,
-            playsinline: 1
-          },
-          events: {
-            onReady: () => {
-              setIsReady(true);
-            },
-            onStateChange: (event) => {
-              // 1 = playing, 2 = paused, 0 = ended
-              if (event.data === 1) {
-                setIsPlaying(true);
-              } else if (event.data === 2 || event.data === 0) {
-                setIsPlaying(false);
-              }
-            }
-          }
-        });
+    if (fadeIntervalRef.current) {
+      clearInterval(fadeIntervalRef.current);
+      fadeIntervalRef.current = null;
+    }
+
+    const steps = 15;
+    const stepTime = durationMs / steps;
+    const volDiff = (toVol - fromVol) / steps;
+    let currentStep = 0;
+    audio.volume = Math.max(0, Math.min(1, fromVol));
+
+    fadeIntervalRef.current = setInterval(() => {
+      currentStep++;
+      const nextVol = Math.max(0, Math.min(1, fromVol + volDiff * currentStep));
+      if (audioRef.current) {
+        audioRef.current.volume = nextVol;
       }
-    };
 
-    if (window.YT && window.YT.Player) {
-      initPlayer();
-    } else {
-      window.onYouTubeIframeAPIReady = initPlayer;
-    }
-
-    // Auto-start playback on first user gesture anywhere on the document
-    const handleFirstClick = () => {
-      setHasInteracted(true);
-      window.removeEventListener('click', handleFirstClick);
-      window.removeEventListener('touchstart', handleFirstClick);
-    };
-
-    window.addEventListener('click', handleFirstClick, { once: true });
-    window.addEventListener('touchstart', handleFirstClick, { once: true });
-
-    return () => {
-      window.removeEventListener('click', handleFirstClick);
-      window.removeEventListener('touchstart', handleFirstClick);
-    };
+      if (currentStep >= steps) {
+        clearInterval(fadeIntervalRef.current);
+        fadeIntervalRef.current = null;
+        if (onComplete) onComplete();
+      }
+    }, stepTime);
   }, []);
 
-  const playSong = () => {
-    if (playerRef.current && typeof playerRef.current.playVideo === 'function') {
-      try {
-        playerRef.current.unMute();
-        playerRef.current.playVideo();
-        setIsPlaying(true);
-      } catch (err) {
-        console.warn('Playback error:', err);
+  // Smooth Crossfade to new track
+  const crossfadeToTrack = useCallback((targetIndex) => {
+    const audio = audioRef.current;
+    if (!audio || isCrossfadingRef.current) return;
+    isCrossfadingRef.current = true;
+
+    const validIndex = (targetIndex + WEDDING_PLAYLIST.length) % WEDDING_PLAYLIST.length;
+    const nextSongObj = WEDDING_PLAYLIST[validIndex];
+
+    // 1. Ramp volume down over 1.2s
+    rampVolume(audio.volume, 0, 1200, () => {
+      // 2. Switch track
+      setCurrentTrackIndex(validIndex);
+      audio.src = nextSongObj.url;
+      audio.currentTime = 0;
+
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+            // 3. Ramp volume up
+            rampVolume(0, isMuted ? 0 : 1, 1200, () => {
+              isCrossfadingRef.current = false;
+            });
+          })
+          .catch((err) => {
+            console.warn('Track switch playback error:', err);
+            isCrossfadingRef.current = false;
+          });
+      } else {
+        rampVolume(0, isMuted ? 0 : 1, 1200, () => {
+          isCrossfadingRef.current = false;
+        });
+      }
+    });
+  }, [rampVolume, isMuted]);
+
+  const nextSong = useCallback(() => {
+    if (WEDDING_PLAYLIST.length > 1) {
+      crossfadeToTrack(currentTrackIndexRef.current + 1);
+    } else if (audioRef.current) {
+      // Single song: smooth restart
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => {});
+    }
+  }, [crossfadeToTrack]);
+
+  const prevSong = useCallback(() => {
+    if (WEDDING_PLAYLIST.length > 1) {
+      crossfadeToTrack(currentTrackIndexRef.current - 1);
+    } else if (audioRef.current) {
+      // Single song: rewind to start
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => {});
+    }
+  }, [crossfadeToTrack]);
+
+  const playSong = useCallback(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.muted = isMuted;
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch((err) => {
+            console.warn('Playback error (browser policy):', err);
+          });
       }
     }
-  };
+  }, [isMuted]);
 
-  const pauseSong = () => {
-    if (playerRef.current && typeof playerRef.current.pauseVideo === 'function') {
-      try {
-        playerRef.current.pauseVideo();
-        setIsPlaying(false);
-      } catch (err) {
-        console.warn('Pause error:', err);
-      }
+  const pauseSong = useCallback(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      setIsPlaying(false);
     }
-  };
+  }, []);
 
-  const togglePlay = () => {
+  const togglePlay = useCallback(() => {
     if (isPlaying) {
       pauseSong();
     } else {
       playSong();
     }
-  };
+  }, [isPlaying, pauseSong, playSong]);
 
-  const toggleMute = () => {
-    if (playerRef.current) {
+  const toggleMute = useCallback(() => {
+    const audio = audioRef.current;
+    if (audio) {
       if (isMuted) {
-        playerRef.current.unMute();
+        audio.muted = false;
         setIsMuted(false);
       } else {
-        playerRef.current.mute();
+        audio.muted = true;
         setIsMuted(true);
       }
     }
+  }, [isMuted]);
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime || 0);
+    }
   };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration || 0);
+      setIsReady(true);
+    }
+  };
+
+  const handleSongEnded = () => {
+    if (WEDDING_PLAYLIST.length > 1) {
+      nextSong();
+    } else if (audioRef.current) {
+      // Seamless loop for single local song
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => {});
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (fadeIntervalRef.current) {
+        clearInterval(fadeIntervalRef.current);
+      }
+    };
+  }, []);
 
   return (
     <MusicContext.Provider
@@ -133,28 +206,31 @@ export function MusicProvider({ children }) {
         isPlaying,
         isMuted,
         isReady,
-        song: SONG_DETAILS,
+        song: currentSong,
+        playlist: WEDDING_PLAYLIST,
+        currentTrackIndex,
+        currentTime,
+        duration,
         playSong,
         pauseSong,
         togglePlay,
-        toggleMute
+        toggleMute,
+        nextSong,
+        prevSong,
+        crossfadeToTrack
       }}
     >
-      {/* Hidden YouTube Iframe for audio-only playback */}
-      <div
-        style={{
-          position: 'fixed',
-          top: '-100px',
-          left: '-100px',
-          width: '1px',
-          height: '1px',
-          opacity: 0.01,
-          pointerEvents: 'none'
-        }}
-        aria-hidden="true"
-      >
-        <div id="youtube-hidden-audio-player" />
-      </div>
+      {/* Native HTML5 Audio Element for zero-dependency local playback */}
+      <audio
+        ref={audioRef}
+        src={currentSong.url}
+        preload="metadata"
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
+        onEnded={handleSongEnded}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+      />
 
       {children}
     </MusicContext.Provider>

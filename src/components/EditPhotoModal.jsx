@@ -4,7 +4,7 @@ import { uploadToCloudinary } from '../services/cloudinary';
 import { playCelebrationChime } from '../utils/audio';
 import confetti from 'canvas-confetti';
 
-export default function EditPhotoModal({ isOpen, photo, onClose, onSave }) {
+export default function EditPhotoModal({ isOpen, photo, onClose, onSave, onUpdate }) {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('siblings');
   const [caption, setCaption] = useState('');
@@ -22,6 +22,21 @@ export default function EditPhotoModal({ isOpen, photo, onClose, onSave }) {
       setCurrentImage(photo.frontImage || photo.image || photo.image_url || '');
     }
   }, [photo]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen || !photo) return null;
 
@@ -66,9 +81,16 @@ export default function EditPhotoModal({ isOpen, photo, onClose, onSave }) {
         backStory: caption.trim()
       };
 
-      await onSave(updatedData);
-      playCelebrationChime();
-      confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+      const saveHandler = onSave || onUpdate;
+      if (typeof saveHandler === 'function') {
+        await saveHandler(updatedData);
+      }
+
+      try {
+        playCelebrationChime();
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+      } catch (e) {}
+
       onClose();
     } catch (err) {
       console.error('Error saving edited photo details:', err);
@@ -78,8 +100,14 @@ export default function EditPhotoModal({ isOpen, photo, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-      <div className="relative w-full max-w-lg rounded-3xl bg-royal-900 border border-gold-500/40 p-5 sm:p-7 shadow-2xl overflow-hidden my-6 animate-in fade-in zoom-in-95 duration-200 text-left">
+    <div
+      className="fixed inset-0 z-[110] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 overflow-y-auto select-none"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-lg rounded-3xl bg-royal-900 border border-gold-500/40 p-5 sm:p-7 shadow-2xl overflow-hidden my-6 sm:my-8 animate-in fade-in zoom-in-95 duration-200 text-left"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Decorative blur glow */}
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-gold-500/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-rose-500/15 rounded-full blur-3xl pointer-events-none" />

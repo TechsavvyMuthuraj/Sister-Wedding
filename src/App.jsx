@@ -12,15 +12,21 @@ import FlutterNavBar from './components/FlutterNavBar';
 import WeddingMusicPlayer from './components/WeddingMusicPlayer';
 import Lightfall from './components/Lightfall';
 import DeveloperSupport from './components/DeveloperSupport';
-import { MusicProvider } from './context/MusicContext';
+import WeddingOpeningIntro from './components/WeddingOpeningIntro';
+import GoldDustOverlay from './components/GoldDustOverlay';
+import { MusicProvider, useMusic } from './context/MusicContext';
 import { WEDDING_CONFIG, INITIAL_PHOTOS, INITIAL_WISHES } from './data/weddingData';
 import {
   fetchFamilyPhotos, fetchWishes, saveWeddingSettings, fetchWeddingSettings,
-  updateFamilyPhoto, deleteFamilyPhotoFromCloud
+  updateFamilyPhoto, deleteFamilyPhotoFromCloud, updateWish, deleteWishFromCloud
 } from './services/supabase';
-import { Heart, Sparkles } from 'lucide-react';
+import { Heart, Sparkles, ArrowUp } from 'lucide-react';
 
 function AppContent() {
+  const { playSong } = useMusic();
+  const [hasEntered, setHasEntered] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
   // Wedding details config (customizable)
   const [config, setConfig] = useState(() => {
     try {
@@ -32,7 +38,7 @@ function AppContent() {
         parsed.brotherMessage?.includes("அஜய்") ||
         parsed.location?.includes("Nallanoor") ||
         parsed.brideNative?.includes("Chinnanguppam") ||
-        parsed.groomNative?.includes("பிக்காம்பட்டி") ||
+        parsed.groomNative?.includes("பிக்கம்பட்டி") ||
         !parsed.brotherMessage?.includes("குத்துவிளக்காய்") ||
         !parsed.googleMapsUrl?.includes("UiJxTzEtP1bfVhN59")
       ) {
@@ -61,8 +67,10 @@ function AppContent() {
     try {
       const deletedIds = JSON.parse(localStorage.getItem('wedding_deleted_photo_ids') || '[]');
       const custom = JSON.parse(localStorage.getItem('wedding_custom_photos') || '[]');
-      const combined = [...custom, ...INITIAL_PHOTOS];
-      return combined.filter(isRealPhoto).filter(p => !deletedIds.includes(p.id));
+      const photoMap = new Map();
+      INITIAL_PHOTOS.forEach(p => photoMap.set(p.id, p));
+      custom.forEach(p => photoMap.set(p.id, { ...(photoMap.get(p.id) || {}), ...p }));
+      return Array.from(photoMap.values()).filter(isRealPhoto).filter(p => !deletedIds.includes(p.id));
     } catch {
       return INITIAL_PHOTOS.filter(isRealPhoto);
     }
@@ -71,8 +79,10 @@ function AppContent() {
   // Wishes state
   const [wishes, setWishes] = useState(() => {
     try {
+      const deletedWishIds = JSON.parse(localStorage.getItem('wedding_deleted_wish_ids') || '[]');
       const custom = JSON.parse(localStorage.getItem('wedding_custom_wishes') || '[]');
-      return [...custom, ...INITIAL_WISHES];
+      const combined = [...custom, ...INITIAL_WISHES];
+      return combined.filter(w => !deletedWishIds.includes(w.id));
     } catch {
       return INITIAL_WISHES;
     }
@@ -96,7 +106,7 @@ function AppContent() {
       if (cleaned.length !== cached.length) {
         localStorage.setItem('wedding_custom_photos', JSON.stringify(cleaned));
       }
-    } catch {}
+    } catch { }
 
     // Fetch and merge cloud photos from Supabase
     async function loadCloudData() {
@@ -114,7 +124,7 @@ function AppContent() {
                 const customIds = new Set(custom.map(c => c.id));
                 const merged = [...newCloud.filter(p => !customIds.has(p.id)), ...custom].filter(isRealPhoto);
                 localStorage.setItem('wedding_custom_photos', JSON.stringify(merged));
-              } catch {}
+              } catch { }
               return [...newCloud, ...prev];
             }
             return prev.filter(isRealPhoto);
@@ -124,8 +134,9 @@ function AppContent() {
         const cloudWishes = await fetchWishes();
         if (cloudWishes && cloudWishes.length > 0) {
           setWishes(prev => {
+            const deletedWishIds = JSON.parse(localStorage.getItem('wedding_deleted_wish_ids') || '[]');
             const existingIds = new Set(prev.map(w => w.id));
-            const newWishes = cloudWishes.filter(w => !existingIds.has(w.id));
+            const newWishes = cloudWishes.filter(w => !existingIds.has(w.id) && !deletedWishIds.includes(w.id));
             return newWishes.length > 0 ? [...newWishes, ...prev] : prev;
           });
         }
@@ -142,7 +153,7 @@ function AppContent() {
             };
             try {
               localStorage.setItem('wedding_custom_config', JSON.stringify(updated));
-            } catch {}
+            } catch { }
             return updated;
           });
         }
@@ -198,13 +209,26 @@ function AppContent() {
     }
   };
 
-  const handleUpdatePhoto = async (updatedPhoto) => {
+  const handleUpdatePhoto = async (photoOrId, maybeData) => {
+    const updatedPhoto = typeof photoOrId === 'object' ? photoOrId : { ...(maybeData || {}), id: photoOrId };
+    if (!updatedPhoto || !updatedPhoto.id) return;
+
     setPhotos(prev => prev.map(p => (p.id === updatedPhoto.id ? { ...p, ...updatedPhoto } : p)));
     await updateFamilyPhoto(updatedPhoto);
   };
 
   const handleAddWish = (newWish) => {
     setWishes([newWish, ...wishes]);
+  };
+
+  const handleUpdateWish = async (updatedWish) => {
+    setWishes(prev => prev.map(w => (w.id === updatedWish.id ? { ...w, ...updatedWish } : w)));
+    await updateWish(updatedWish);
+  };
+
+  const handleDeleteWish = async (wishId) => {
+    setWishes(prev => prev.filter(w => w.id !== wishId));
+    await deleteWishFromCloud(wishId);
   };
 
   const handleToggleLike = (photoId) => {
@@ -215,22 +239,46 @@ function AppContent() {
 
   const scrollToSection = (id) => {
     setActiveTab(id);
-    const el = document.getElementById(id);
+    if (id === 'home') {
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
+
+    // Support both 'gallery' and 'photos' seamlessly
+    let el = document.getElementById(id);
+    if (!el) {
+      if (id === 'gallery') el = document.getElementById('photos');
+      else if (id === 'photos') el = document.getElementById('gallery');
+    }
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Precision positioning: account for fixed top navigation on desktop vs mobile
+      const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
+      const headerOffset = isDesktop ? 75 : 20;
+      const elementPosition = el.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({
+        top: Math.max(0, offsetPosition),
+        behavior: 'smooth'
+      });
     }
   };
 
-  // Observe active section when scrolling
+  // Observe active section when scrolling & update scroll-to-top button
   useEffect(() => {
     const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 350);
+
+      const isDesktop = window.innerWidth >= 768;
       const sections = ['home', 'couple', 'family', 'invitation', 'gallery', 'schedule', 'blessings'];
-      const scrollY = window.scrollY + 200;
+      const scrollY = window.scrollY + (isDesktop ? 120 : 60);
 
       for (const sec of sections) {
-        const el = document.getElementById(sec);
+        let el = document.getElementById(sec);
+        if (!el && sec === 'gallery') el = document.getElementById('photos');
         if (el) {
-          const top = el.offsetTop;
+          const top = el.offsetTop - (isDesktop ? 85 : 30);
           const height = el.offsetHeight;
           if (scrollY >= top && scrollY < top + height) {
             setActiveTab(sec);
@@ -276,7 +324,27 @@ function AppContent() {
 
         {/* Subtle Palace Radial Vignette */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(7,3,14,0.3)_60%,rgba(7,3,14,0.8)_100%)] pointer-events-none" />
+
+        {/* Ethereal Floating Golden Dust Particles */}
+        <GoldDustOverlay count={45} opacity={0.65} />
       </div>
+
+      {/* 🌟 FULL-SCREEN CINEMATIC WEDDING OPENING / INVITATION ENTRANCE 🌟 */}
+      {!hasEntered && (
+        <WeddingOpeningIntro
+          config={config}
+          onEnter={(side) => {
+            setHasEntered(true);
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+            setActiveTab('home');
+            if (typeof window !== 'undefined') {
+              window.scrollTo({ top: 0, behavior: 'instant' });
+            }
+            playSong();
+          }}
+        />
+      )}
 
       {/* Flutter-style Navigation */}
       <FlutterNavBar
@@ -286,7 +354,7 @@ function AppContent() {
       />
 
       {/* Main Sections */}
-      <main className="flex-grow relative z-10">
+      <main className="flex-grow">
         {/* 1. Hero Section with 3D Antigravity Particles & 17/09/2026 Countdown */}
         <HeroSection
           config={config}
@@ -326,6 +394,8 @@ function AppContent() {
         <BlessingsWall
           wishes={wishes}
           onAddWish={handleAddWish}
+          onUpdateWish={handleUpdateWish}
+          onDeleteWish={handleDeleteWish}
           brideName={config.brideName}
           groomName={config.groomName}
         />
@@ -334,8 +404,21 @@ function AppContent() {
         <DeveloperSupport />
       </main>
 
-      {/* Floating YouTube Wedding Song Player */}
+      {/* Floating Luxury Wedding Song Player (Local Audio) */}
       <WeddingMusicPlayer />
+
+      {/* Floating Quick Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-20 md:bottom-6 left-4 z-40 p-2.5 sm:p-3 rounded-full bg-royal-900/95 border border-gold-500/50 text-gold-300 shadow-[0_4px_25px_rgba(245,158,11,0.4)] backdrop-blur-xl hover:bg-gold-500 hover:text-royal-950 hover:scale-110 active:scale-95 transition-all group flex items-center gap-1.5"
+          title="மேலே செல்ல / Scroll to Top"
+          aria-label="Scroll to Top"
+        >
+          <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-y-0.5 transition-transform" />
+          <span className="hidden sm:inline text-xs font-semibold pr-1">Top</span>
+        </button>
+      )}
 
       {/* Upload Modal */}
       <UploadModal
@@ -373,12 +456,13 @@ function AppContent() {
             </span>
             <button
               onClick={() => {
-                document.getElementById('developer-support')?.scrollIntoView({ behavior: 'smooth' });
+                const el = document.getElementById('moi-payment') || document.getElementById('developer-support');
+                el?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 hover:bg-rose-500 hover:text-white transition-all text-[11px] font-semibold flex items-center gap-1 shadow-sm active:scale-95"
+              className="px-3 py-1 rounded-full bg-amber-500/20 border border-gold-500/40 text-gold-300 hover:bg-gold-500 hover:text-royal-950 transition-all text-[11px] font-semibold flex items-center gap-1 shadow-sm active:scale-95"
             >
-              <Heart className="w-3 h-3 fill-rose-400" />
-              <span>ஆதரவு அளிக்க / Support ❤️</span>
+              <Heart className="w-3 h-3 fill-gold-400 text-gold-400" />
+              <span>மணமகள் மொய் பணம் / Online Moi 🎁</span>
             </button>
             <span>•</span>
             <span>17/09/2026</span>

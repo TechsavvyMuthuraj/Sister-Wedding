@@ -37,6 +37,8 @@ export default {
         cinzel: ['Cinzel', 'serif'],
         script: ['"Great Vibes"', 'cursive'],
         sans: ['Outfit', 'Inter', 'sans-serif'],
+        cormorant: ['"Cormorant Garamond"', '"Playfair Display"', 'Georgia', 'serif'],
+        'luxury-serif': ['"Cormorant Garamond"', '"Playfair Display"', 'Bodoni MT', 'Georgia', 'serif'],
       },
       animation: {
         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
